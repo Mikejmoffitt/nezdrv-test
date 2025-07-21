@@ -5,9 +5,9 @@
 #endif  // __ASSEMBLER__
 #include "sai/sai.h"
 #include "nezdrv/nezdrv_cmd.h"
+#include "nezdrv/nezdrv_defs.h"
 
 #ifndef __ASSEMBLER__
-
 
 // Installs the sound driver and resets the sound CPU.
 void nezdrv_init(void);

@@ -1,55 +1,56 @@
+; ==============================================================================
+;
+; NEZDRV Command Interface
+;
+; ==============================================================================
+
 #include	"src/nezdrv/nezdrv_cmd.h"
-#include	"src/nezdrv/nezdrv_data.h"
-#include	"saikodev/sai/sai.h"
+#include	"src/nezdrv/nezdrv_defs.h"
 
-#define NEZ_MAILBOX     (MD_Z80_WRAM+0x1FF0)
-#define NEZ_MAILBOX_CMD (NEZ_MAILBOX+0x0)
-#define NEZ_MAILBOX_SFX (NEZ_MAILBOX+0x8)
-#define NEZ_SIG (MD_Z80_WRAM)
+; Data from nezdrv_data
+	.extern	nezdrv_data_bgm
+	.extern	nezdrv_data_sfx
+	.extern	nezdrv_data_pcm
 
-#define NEZ_CMD_READY          0
-#define NEZ_CMD_LOAD_SFX       1
-#define NEZ_CMD_LOAD_PCM       2
-#define NEZ_CMD_LOAD_BGM       3
-#define NEZ_CMD_PAUSE_BGM      4
-#define NEZ_CMD_RESUME_BGM     5
-#define NEZ_CMD_STOP_BGM       6
-#define NEZ_CMD_STOP_SFX       7
-#define NEZ_CMD_SET_VOLUME_SFX 8
-#define NEZ_CMD_SET_VOLUME_BGM 9
-
-
+; One entry is present for each soudn effect slot.
 	.section	.bss
 	.global	g_nezdrv_sfx_queue
 g_nezdrv_sfx_queue:       ds.b NEZ_SFX_CHANNEL_COUNT
 	.align	2
 
+
 	.section	.text
 
+;
+; Waits until the driver has indicated it has initialized and is ready to
+; process command(s).
+;
 	.global	nezdrv_cmd_wait_ready
 nezdrv_cmd_wait_ready:
 	movem.l	d0-d1, -(sp)
 	moveq	#32, d1  ; maximum number of tries
 wait_try:
-	SAI_MD_Z80_BUSREQ_WAIT
+	NEZ_Z80_BUSREQ_WAIT
+	; Wait for the 'NEZ' signature.
 	lea	NEZ_SIG, a0
-	cmpi.b	#'N', (a0)
+	cmpi.b	#'N', (a0)+
 	bne.s	wait_ng
-	cmpi.b	#'E', 1(a0)
+	cmpi.b	#'E', (a0)+
 	bne.s	wait_ng
-	cmpi.b	#'Z', 2(a0)
+	cmpi.b	#'Z', (a0)+
 	bne.s	wait_ng
+	; Wait for an explicitly empty command byte.
 	lea	NEZ_MAILBOX_CMD, a0
 	tst.b	(a0)  ; NEZ_CMD_READY?
 	bne.s	wait_ng
-	; Driver is OK, proceed.
+	; Driver is OK - proceed.
 wait_done:
 	movem.l	(sp)+, d0-d1
-	SAI_MD_Z80_BUSREL
+	NEZ_Z80_BUSREL
 	rts
 wait_ng:
 	; Driver NG; decrement tries count, wait a while, try again.
-	SAI_MD_Z80_BUSREL
+	NEZ_Z80_BUSREL
 	moveq	#48, d0
 0:
 	nop
@@ -58,11 +59,14 @@ wait_ng:
 	; Give up - don't want to hang everything for the sound driver
 	bra.s	wait_done
 
+;
+; The soudn effect cue array is copied into Z80 memory.
+;
 	.global	nezdrv_cmd_update_sfx
 nezdrv_cmd_update_sfx:
 	lea	g_nezdrv_sfx_queue, a0
 	lea	NEZ_MAILBOX_SFX, a1
-	SAI_MD_Z80_BUSREQ_WAIT
+	NEZ_Z80_BUSREQ_WAIT
 
 	.rept	NEZ_SFX_CHANNEL_COUNT
 	move.b	(a0)+, d0
@@ -73,10 +77,77 @@ nezdrv_cmd_update_sfx:
 	addq	#1, a1
 	.endr
 
-	SAI_MD_Z80_BUSREL
+	NEZ_Z80_BUSREL
 	rts
 
-	; fall-through to nezdrv_cmd_write_addr_sub
+;
+; The PCM list is registered with the driver.
+;
+	.global	nezdrv_cmd_load_pcm
+nezdrv_cmd_load_pcm:
+	bsr.w	nezdrv_cmd_wait_ready
+	; Look up track
+	lea	nezdrv_data_pcm, a0
+
+0:
+	move.l	(a0)+, d0  ; Track address in 68K ROM.
+	bmi.w	nezdrv_cmd_done
+	move.l	a0, -(sp)
+	lea	NEZ_MAILBOX_CMD, a1
+
+	NEZ_Z80_BUSREQ_WAIT
+
+	; First, issue command
+
+	move.b	#NEZ_CMD_LOAD_PCM, (a1)+
+	bsr.w	nezdrv_cmd_write_addr_sub
+	; we already have the bus, but we can go into the wait function
+	bsr.w	nezdrv_cmd_wait_ready
+	move.l	(sp)+, a0
+	bra.s	0b
+
+;
+; The sound effect data blob is loaded into the driver.
+;
+	.global	nezdrv_cmd_load_sfx
+nezdrv_cmd_load_sfx:
+	bsr.w	nezdrv_cmd_wait_ready
+	move.l	#nezdrv_data_sfx, d0
+	lea	NEZ_MAILBOX_CMD, a1
+
+	NEZ_Z80_BUSREQ_WAIT
+
+	move.b	#NEZ_CMD_LOAD_SFX, (a1)+
+	bsr.w	nezdrv_cmd_write_addr_sub
+	bra.w	nezdrv_cmd_done
+
+;
+; Loads and plays a track from the BGM list.
+;
+; d0.w = track id
+	.global	nezdrv_cmd_load_bgm
+nezdrv_cmd_load_bgm:
+	bsr.w	nezdrv_cmd_wait_ready
+	add.w	d0, d0
+	add.w	d0, d0
+	lea	nezdrv_data_bgm, a0
+	move.l	(a0, d0.w), d0  ; Track address in 68K ROM.
+	lea	NEZ_MAILBOX_CMD, a1
+
+	NEZ_Z80_BUSREQ_WAIT
+
+	move.b	#NEZ_CMD_LOAD_BGM, (a1)+
+	bsr.w	nezdrv_cmd_write_addr_sub
+	; Play flag
+	move.b	#1, (a1)+
+nezdrv_cmd_done:
+	NEZ_Z80_BUSREL
+	rts
+
+;
+; Subroutine to write a 68000-native address to the command buffer as the
+; argument for a data load / register command.
+;
 ; a0.l = pointer to encode
 ; a1.l = Z80 mailbox memory arg buffer
 nezdrv_cmd_write_addr_sub:
@@ -91,59 +162,4 @@ nezdrv_cmd_write_addr_sub:
 	lsr.l	#8, d0
 	or.b	#$80, d0
 	move.b	d0, (a1)+
-	rts
-
-	.global	nezdrv_cmd_load_pcm
-nezdrv_cmd_load_pcm:
-	bsr.w	nezdrv_cmd_wait_ready
-	; Look up track
-	lea	nezdrv_data_pcm_list, a0
-
-0:
-	move.l	(a0)+, d0  ; Track address in 68K ROM.
-	bmi.w	nezdrv_cmd_done
-	move.l	a0, -(sp)
-	lea	NEZ_MAILBOX_CMD, a1
-
-	SAI_MD_Z80_BUSREQ_WAIT
-
-	; First, issue command
-
-	move.b	#NEZ_CMD_LOAD_PCM, (a1)+
-	bsr.w	nezdrv_cmd_write_addr_sub
-	; we already have the bus, but we can go into the wait function
-	bsr.w	nezdrv_cmd_wait_ready
-	move.l	(sp)+, a0
-	bra.s	0b
-
-	.global	nezdrv_cmd_load_sfx
-nezdrv_cmd_load_sfx:
-	bsr.w	nezdrv_cmd_wait_ready
-	move.l	#nezdrv_data_sfx, d0
-	lea	NEZ_MAILBOX_CMD, a1
-
-	SAI_MD_Z80_BUSREQ_WAIT
-
-	move.b	#NEZ_CMD_LOAD_SFX, (a1)+
-	bsr.w	nezdrv_cmd_write_addr_sub
-	bra.w	nezdrv_cmd_done
-
-	.global	nezdrv_cmd_load_bgm
-; d0.w = track id
-nezdrv_cmd_load_bgm:
-	bsr.w	nezdrv_cmd_wait_ready
-	add.w	d0, d0
-	add.w	d0, d0
-	lea	nezdrv_data_bgm_list, a0
-	move.l	(a0, d0.w), d0  ; Track address in 68K ROM.
-	lea	NEZ_MAILBOX_CMD, a1
-
-	SAI_MD_Z80_BUSREQ_WAIT
-
-	move.b	#NEZ_CMD_LOAD_BGM, (a1)+
-	bsr.w	nezdrv_cmd_write_addr_sub
-	; Play flag   TODO: make this an arg?
-	move.b	#1, (a1)+
-nezdrv_cmd_done:
-	SAI_MD_Z80_BUSREL
 	rts
