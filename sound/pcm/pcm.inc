@@ -1,0 +1,3 @@
+PCM_KICK1  = 0
+PCM_SNARE1 = 1
+

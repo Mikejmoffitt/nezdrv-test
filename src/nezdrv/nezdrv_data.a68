@@ -1,0 +1,33 @@
+	.section	.rodata
+
+	.global	nezdrv_data_bgm_list
+nezdrv_data_bgm_list:
+	dc.l	nezdrv_data_bgm_dangus
+	dc.l	nezdrv_data_bgm_straight_life
+	dc.l	nezdrv_data_bgm_peter_gunn
+
+	.global	nezdrv_data_pcm_list
+nezdrv_data_pcm_list:
+	dc.l	pcm_kick1 ; 00
+	dc.l	pcm_snare1 ; 01
+	dc.l	-1
+
+	.align	$8000
+
+	.global	nezdrv_data_sfx
+nezdrv_data_sfx:
+	.incbin	"wrk/sound/sfx.bin"
+
+nezdrv_data_bgm_dangus:
+	.incbin	"wrk/sound/bgm/dangus.bin"
+nezdrv_data_bgm_straight_life:
+	.incbin	"wrk/sound/bgm/straight_life.bin"
+nezdrv_data_bgm_peter_gunn:
+	.incbin	"wrk/sound/bgm/peter_gunn.bin"
+
+pcm_kick1:
+	.incbin	"sound/pcm/kick1.bin"
+pcm_snare1:
+	.incbin	"sound/pcm/snare1.bin"
+
+	.align	2

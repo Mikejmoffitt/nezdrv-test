@@ -1,0 +1,6 @@
+[submodule "nezdrv"]
+	path = nezdrv
+	url = git@github.com:mikejmoffitt/nezdrv
+[submodule "saikodev"]
+	path = saikodev
+	url = git@github.com:mikejmoffitt/saikodev

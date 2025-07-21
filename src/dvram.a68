@@ -1,0 +1,3 @@
+	.section	.bss
+	.global	g_dvram_addr
+g_dvram_addr:		ds.w 1
