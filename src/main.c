@@ -42,7 +42,6 @@ static void draw_initial_text(void)
 void __attribute__((noreturn)) main(void)
 {
 	sai_init();
-	nezdrv_init();
 	// CHR load
 	dvram_reset();
 	s_font_vram = dvram_alloc(BG_FONT_CHR_WORDS);
@@ -53,6 +52,7 @@ void __attribute__((noreturn)) main(void)
 	sai_finish();
 	draw_initial_text();
 
+	nezdrv_init();
 	nezdrv_play_bgm(0);
 
 	while (true)
