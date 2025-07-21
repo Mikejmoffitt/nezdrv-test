@@ -1,7 +1,43 @@
 #include "sai/sai.h"
+#include <stddef.h>
 #include "dvram.h"
 #include "res.h"
 #include "nezdrv/nezdrv.h"
+
+// In a "real program" it'd be better to put this data in its own file, with
+// alignment of 0x8000 for the data.
+
+//
+// BGM Data
+//
+
+alignas(0x8000) static const uint8_t sfx_data[] =
+{
+	#embed "wrk/sound/sfx.bin"
+};
+
+static const uint8_t bgm_dangus[] =
+{
+	#embed "wrk/sound/bgm/dangus.bin"
+
+};
+
+//
+// PCM Data.
+//
+
+alignas(0x8000) static const uint8_t pcm_kick1[] =
+{
+	#embed "sound/pcm/kick1.bin"
+};
+
+static const uint8_t pcm_snare1[] =
+{
+	#embed "sound/pcm/snare1.bin"
+};
+
+
+
 
 #define PAL_FONT 0
 
@@ -27,7 +63,7 @@ static inline void print_string(uint32_t vram_addr, const uint16_t attr_base,
 	}
 }
 
-static void draw_initial_text(void)
+static void draw_status_text(const char *str)
 {
 	const uint16_t attr = VDP_ATTR(VDP_TILE(TEST_BG_VRAM_FONT_ADDR),
 	                      /*hflip=*/false,
@@ -36,7 +72,7 @@ static void draw_initial_text(void)
 	                      /*prio=*/false);
 
 	print_string(sai_vdp_calc_plane_addr(VDP_PLANE_A, 0, 0),
-	             attr, "NEZDRV Test");
+	             attr, str);
 }
 
 void __attribute__((noreturn)) main(void)
@@ -50,10 +86,17 @@ void __attribute__((noreturn)) main(void)
 	                          BG_FONT_CHR_WORDS, 2);
 	sai_pal_load(PAL_FONT, vel_get_wrk_gfx_pal(BG_FONT), 1);
 	sai_finish();
-	draw_initial_text();
+	draw_status_text("NEZDRV INIT");
 
-	nezdrv_init();
-	nezdrv_play_bgm(0);
+	static const uint8_t *pcm_list[] =
+	{
+		pcm_kick1,
+		pcm_snare1,
+		NULL
+	};
+	nezdrv_init(sfx_data, pcm_list);
+	draw_status_text("NEZDRV PLAY BGM");
+	nezdrv_play_bgm(bgm_dangus);
 
 	while (true)
 	{
