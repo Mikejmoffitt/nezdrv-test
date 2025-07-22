@@ -9,7 +9,7 @@
 #ifndef __ASSEMBLER__
 
 // Installs the sound driver and resets the sound CPU.
-void nezdrv_init(const uint8_t *sfx_data, const uint8_t **pcm_list);
+bool nezdrv_init(const uint8_t *sfx_data, const uint8_t * const *pcm_list);
 
 // Pushes pending sound effects.
 void nezdrv_update(void);

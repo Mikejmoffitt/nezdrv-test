@@ -6,8 +6,6 @@
 //
 // =============================================================================
 
-#pragma once
-
 // Z80 memory addresses for the mailbox.
 
 #define NEZ_MEM          (0xA00000)
@@ -38,9 +36,10 @@
 static inline void nez_z80_bus_req(bool wait)
 {
 	asm volatile("" ::: "memory");
+	asm volatile("move.w #0x0100, (0xA11100).l");
 	volatile uint16_t *z80_bus = (volatile uint16_t *)NEZ_BUSREQ_PORT;
 
-	*z80_bus = 0x0100;
+//	*z80_bus = 0x0100;
 	if (!wait) return;
 	asm volatile("" ::: "memory");
 	while (*z80_bus & 0x0100)
@@ -52,22 +51,25 @@ static inline void nez_z80_bus_req(bool wait)
 static inline void nez_z80_bus_release(void)
 {
 	asm volatile("" ::: "memory");
-	volatile uint16_t *z80_bus = (volatile uint16_t *)NEZ_BUSREQ_PORT;
-	*z80_bus = 0x0000;
+	asm volatile("move.w #0x0000, (0xA11100).l");
+//	volatile uint16_t *z80_bus = (volatile uint16_t *)NEZ_BUSREQ_PORT;
+//	*z80_bus = 0x0000;
 }
 
 static inline void nez_z80_reset_deassert(void)
 {
 	asm volatile("" ::: "memory");
-	volatile uint16_t *z80_reset = (volatile uint16_t *)NEZ_RESET_PORT;
-	*z80_reset = 0x0100;
+	asm volatile("move.w #0x0100, (0xA11200).l");
+//	volatile uint16_t *z80_reset = (volatile uint16_t *)NEZ_RESET_PORT;
+//	*z80_reset = 0x0100;
 }
 
 static inline void nez_z80_reset_assert(bool wait)
 {
 	asm volatile("" ::: "memory");
-	volatile uint16_t *z80_reset = (volatile uint16_t *)NEZ_RESET_PORT;
-	*z80_reset = 0x0000;
+	asm volatile("move.w #0x0000, (0xA11200).l");
+//	volatile uint16_t *z80_reset = (volatile uint16_t *)NEZ_RESET_PORT;
+//	*z80_reset = 0x0000;
 	if (!wait) return;
 	for (uint16_t i = 0; i < 64; i++)
 	{
@@ -109,13 +111,17 @@ typedef struct NezMb
 	uint8_t sfx[NEZ_SFX_CHANNEL_COUNT];
 } NezMb;
 
-
-static void wait_ready(void)
+// Waits until NEZDRV is ready to accept commands.
+// Returns true if the driver signature is present and it can take commands.
+// Returns false if it was unable to enter a ready state.
+// If true is returned, then the bus is still held.
+// If faflse is returned, then the bus was released.
+static bool wait_ready(void)
 {
 	volatile uint8_t *z80mem = (volatile uint8_t *)NEZ_MEM;
 	volatile NezMb *nezmb = (volatile NezMb *)&z80mem[NEZ_MAILBOX_OFFS];
 
-	uint16_t tries = 32;
+	uint16_t tries = 127;
 
 	while (tries-- > 0)
 	{
@@ -127,19 +133,21 @@ static void wait_ready(void)
 		    z80mem[NEZ_SIG_OFFS+2] == 'Z' &&
 		    nezmb->cmd == NEZ_CMD_READY)
 		{
-			break;
+
+			return true;
 		}
 
 		// It's not ready; let it run a little more.
 		nez_z80_bus_release();
 
-		for (uint16_t i = 0; i < 32; i++)
+		for (uint16_t i = 0; i < 64; i++)
 		{
 			__asm__ volatile("nop");
 		}
 	}
 
 	nez_z80_bus_release();
+	return false;
 }
 
 
@@ -149,10 +157,31 @@ static void write_native_addr(const void *address, volatile NezMb *nezmb)
 	// The bank is A22-A15.
 	nezmb->addr.bank = addr32 >> 15;
 	nezmb->addr.ptr_lo = addr32 & 0xFF;
-	nezmb->addr.ptr_hi = (addr32 >> 8) & 0xFF;
+	nezmb->addr.ptr_hi = ((addr32 >> 8) & 0x7F) | 0x80;
+	nezmb->pad[0] = 1;
 }
 
-void nezdrv_init(const uint8_t *sfx_data, const uint8_t **pcm_list)
+
+void nezdrv_write_pcm_list(const uint8_t * const *pcm_list)
+{
+	volatile uint8_t *z80mem = (volatile uint8_t *)NEZ_MEM;
+	volatile NezMb *nezmb = (volatile NezMb *)&z80mem[NEZ_MAILBOX_OFFS];
+	// Register all PCM samples.
+	if (pcm_list)
+	{
+		while (*pcm_list)
+		{
+			if (!wait_ready()) return;
+			nez_z80_bus_req(/*wait=*/true);
+			write_native_addr(*pcm_list, nezmb);
+			nezmb->cmd = NEZ_CMD_LOAD_PCM;
+			nez_z80_bus_release();
+			pcm_list++;
+		}
+	}
+}
+
+bool nezdrv_init(const uint8_t *sfx_data, const uint8_t * const *pcm_list)
 {
 	// Load driver into memory.
 	volatile uint8_t *z80mem = (volatile uint8_t *)NEZ_MEM;
@@ -174,7 +203,7 @@ void nezdrv_init(const uint8_t *sfx_data, const uint8_t **pcm_list)
 
 	if (sfx_data)
 	{
-		wait_ready();
+		if (!wait_ready()) return false;
 		// Load the sound effect data.
 		nez_z80_bus_req(/*wait=*/true);
 		write_native_addr(sfx_data, nezmb);
@@ -182,24 +211,13 @@ void nezdrv_init(const uint8_t *sfx_data, const uint8_t **pcm_list)
 		nez_z80_bus_release();
 	}
 
-	// Register all PCM samples.
-	if (pcm_list)
-	{
-		while (*pcm_list)
-		{
-			wait_ready();
-			nez_z80_bus_req(/*wait=*/true);
-			write_native_addr(*pcm_list, nezmb);
-			nezmb->cmd = NEZ_CMD_LOAD_PCM;
-			nez_z80_bus_release();
-			pcm_list++;
-		}
-	}
+	nezdrv_write_pcm_list(pcm_list);
 
 	for (uint16_t i = 0; i < sizeof(s_sfx_queue); i++)
 	{
 		s_sfx_queue[i] = 0;
 	}
+	return true;
 }
 
 void nezdrv_play_bgm(const uint8_t *bgm_data)
@@ -207,7 +225,7 @@ void nezdrv_play_bgm(const uint8_t *bgm_data)
 	volatile uint8_t *z80mem = (volatile uint8_t *)NEZ_MEM;
 	volatile NezMb *nezmb = (volatile NezMb *)&z80mem[NEZ_MAILBOX_OFFS];
 
-	wait_ready();
+	if (!wait_ready()) return;
 
 	nez_z80_bus_req(/*wait=*/true);
 	write_native_addr(bgm_data, nezmb);
@@ -229,6 +247,7 @@ void nezdrv_update(void)
 	for (uint16_t i = 0; i < sizeof(s_sfx_queue); i++)
 	{
 		nezmb->sfx[i] = s_sfx_queue[i];
+		s_sfx_queue[i] = 0;
 	}
 	nez_z80_bus_release();
 
