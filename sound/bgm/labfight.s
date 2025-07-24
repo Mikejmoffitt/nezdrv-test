@@ -20,11 +20,11 @@ INST_CSORGAN1 = 3
 	nTrackHeader NEZ_PCMRATE_DEFAULT, TEMPO, trk_list, instruments_list
 
 trk_list:
-	nTrackRelPtr trk_bass
-	nTrackRelPtr trk_mel0
-	nTrackRelPtr trk_mel1
+	nTrackRelPtr trk_bass   ; timing OK
+	nTrackRelPtr trk_mel0   ; timing OK
+	nTrackRelPtr trk_mel1   ; timing OK
 	nTrackRelPtr trk_mel2
-	nTrackRelPtr trk_mel3
+	nTrackRelPtr trk_mel3   ; timing OK
 	nTrackRelPtr trk_unused
 
 	nTrackRelPtr trk_unused
@@ -102,8 +102,8 @@ trk_mel0:
 
 ; Introduction
 .pt1a:
-	nVol	MAIN_VOL
 	nLength	RLEN
+	nVol	MAIN_VOL
 	nD	RLEN*2
 	nVol	DAMP_VOL
 	nRest	RLEN*2
@@ -176,34 +176,40 @@ trk_mel0:
 	nRet
 
 .pt3b:
-	nVol	MAIN_VOL
 	nLength	RLEN*2
+
+	nVol	MAIN_VOL
 	nF
 	nVol	DAMP_VOL
 	nRest
 	nOff	RLEN*4
+
 	nVol	MAIN_VOL
 	nF	RLEN
 
 	nVol	DAMP_VOL
-	nRest
+	nRest	RLEN
 	nVol	MAIN_VOL
+
 	nF
 	nVol	DAMP_VOL
 	nRest
-	nOff	RLEN*2
+	nOff
+	nVol	MAIN_VOL
 	nRet
 
 .pt3c:
-	nVol	MAIN_VOL
-	nLength	RLEN*2
-	nE	RLEN
-	nVol	DAMP_VOL
-	nRest	RLEN
+	nLength	RLEN
 	nVol	MAIN_VOL
 	nE
 	nVol	DAMP_VOL
-	nRest	RLEN
+	nRest
+	nVol	MAIN_VOL
+
+	nLength	RLEN*2
+	nE
+	nVol	DAMP_VOL
+	nRest
 	nLpSet	2
 -:
 	nVol	MAIN_VOL
@@ -211,7 +217,7 @@ trk_mel0:
 	nVol	DAMP_VOL
 	nRest
 	nLpEnd	-
-	nOff	RLEN*2
+	nOff
 	nVol	MAIN_VOL
 	nRet
 
@@ -265,7 +271,7 @@ trk_mel1:
 	nTrn	-3
 	nCall	trk_mel0.pt1a  ; 0, 2
 	nTrn	0
-	nCall	pt1b  ; 1, 3, 4
+	nCall	.pt1b  ; 1, 3, 4
 	nLpEnd	-
 	; Transition B (23-24)
 	nRest	RLEN*16
@@ -273,15 +279,20 @@ trk_mel1:
 	; Melody B (25-40)
 	nLpSet	2
 -:
-	nTrn	-3
-	nCall	trk_mel0.pt3b  ; 25
-	nCall	trk_mel0.pt3c  ; 26
+	nTrn	0
+	nCall	trk_mel0.pt1a  ; 25
+	nTrn	-2
+	nCall	.pt1b          ; 26
+
 	nTrn	-4
 	nCall	trk_mel0.pt1a  ; 27
-	nCall	trk_mel0.pt1b  ; 28
-	nTrn	-3
-	nCall	trk_mel0.pt3b  ; 29
-	nCall	trk_mel0.pt3c  ; 30
+	nTrn	0
+	nCall	.pt1b          ; 28
+	nTrn	0
+	nCall	trk_mel0.pt1a  ; 29
+	nTrn	-2
+	nCall	.pt1b          ; 30
+
 	nTrn	-4
 	nCall	trk_mel0.pt1a  ; 31
 	nTrn	0
@@ -386,48 +397,44 @@ trk_mel2:
 	nTrn	0
 	nCall	.pt1d
 
-	nCall	.intro_bulk
 	; Transition B (23-24)
 	nCall	.pt4a
-	; Melody B (25-40)
+	; Melody B (25-32)
 	nLpSet	2
 -:
-	nTrn	9
+	nTrn	6
 	nCall	trk_mel0.pt3b  ; 25
 	nTrn	0
 	nCall	.pt5a          ; 26
-	nTrn	9
+	nTrn	5
 	nCall	trk_mel0.pt1a  ; 27
 	nTrn	0
-	nCall	trk_mel0.pt1b  ; 28
+	nCall	.pt1b          ; 28
 	nLpEnd	-
+	; 33-40 are a little different in a way that is unique to this channel
+	nTrn	6
+	nCall	trk_mel0.pt3b  ; 33
+	nTrn	0
+	nCall	.pt5b          ; 34
+	nTrn	5
+	nCall	trk_mel0.pt1a  ; 35
+	nTrn	0
+	nCall	.pt1b          ; 36
 
-	nStop
+	nTrn	6
+	nCall	trk_mel0.pt3b  ; 37
+	nTrn	0
+	nCall	.pt5b          ; 38
+	nTrn	8
+	nCall	trk_mel0.pt1a  ; 39
+	nTrn	0
+	nCall	.pt5c
 
 	nJump	.top
 
-.pt5a:
-	nVol	MAIN_VOL
-	nLength	RLEN*2
-	nAs	RLEN
-	nVol	DAMP_VOL
-	nRest	RLEN
-	nVol	MAIN_VOL
-	nAs
-	nVol	DAMP_VOL
-	nRest	RLEN
-	nLpSet	2
--:
-	nVol	MAIN_VOL
-	nG
-	nVol	DAMP_VOL
-	nRest
-	nLpEnd	-
-	nOff	RLEN*2
-	nVol	MAIN_VOL
-	nRet
 
 .pt4a:
+	nOctDn
 	nLength	RLEN*2
 	nVol	MAIN_VOL
 	nLpSet	4
@@ -449,6 +456,65 @@ trk_mel2:
 	nF
 	nE
 	nD
+	nOctUp
+	nRet
+
+.pt5a:
+	nVol	MAIN_VOL
+	nLength	RLEN*2
+	nAs	RLEN
+	nVol	DAMP_VOL
+	nRest	RLEN
+	nVol	MAIN_VOL
+	nAs
+.pt5a_join:
+	nVol	DAMP_VOL
+	nRest
+	nLpSet	2
+-:
+	nVol	MAIN_VOL
+	nG
+	nVol	DAMP_VOL
+	nRest
+	nLpEnd	-
+	nOff	RLEN*2
+	nVol	MAIN_VOL
+	nRet
+
+.pt5b:
+	nVol	MAIN_VOL
+	nLength	RLEN*2
+	nB	RLEN
+	nVol	DAMP_VOL
+	nRest	RLEN
+	nVol	MAIN_VOL
+	nB
+	nJump	.pt5a_join
+
+.pt5c:
+	nLength	RLEN*2
+	nVol	MAIN_VOL
+	nD	RLEN
+	nVol	DAMP_VOL
+	nRest	RLEN
+	nVol	MAIN_VOL
+	nD
+	nVol	DAMP_VOL
+	nRest
+	nVol	MAIN_VOL
+	nD
+	nVol	DAMP_VOL
+	nRest
+	nOctUp
+	nLength	RLEN
+	nLpSet	3
+-:
+	nVol	MAIN_VOL
+	nG
+	nVol	DAMP_VOL
+	nRest
+	nLpEnd	-
+	nOctDn
 	nRet
 
 
@@ -537,10 +603,10 @@ trk_mel2:
 	nFs
 	nF
 	nOctDn
-	nOctDn
 	nRet
 
 .pt3a:
+	nOctDn
 	nLength	RLEN
 	nG
 	nOff
@@ -642,6 +708,7 @@ trk_mel2:
 	; Almost pt3c from mel3
 .pt3f:
 	nLength	RLEN*2
+	nOctUp
 	nLpSet	2
 -:
 	nD
@@ -659,7 +726,11 @@ trk_mel2:
 	nRest
 	nVol	MAIN_VOL
 	nD
-	nJump	trk_mel3.pt3c_damp
+	nVol	DAMP_VOL
+	nRest
+	nVol	MAIN_VOL
+	nOff	RLEN*14
+	nRet
 
 ;
 ; Melody (ch6)
@@ -718,8 +789,6 @@ trk_mel3:
 	nCall	.pt4d    ; 38
 	nCall	.pt4e    ; 39
 	nOff	RLEN*16  ; 40
-
-	nStop
 
 	nJump	.top
 
@@ -1177,7 +1246,7 @@ trk_bass:
 
 	nOctDn
 	nVol	MAIN_VOL
-	nRest
+	nRet
 
 .pt4d:  ; TODO: Need harmony up a fifth from this.
 	nLength	RLEN
