@@ -52,7 +52,9 @@ instruments_list:
 .inst_csorgan1:
 	binclude "inst/csorgan1.bin"
 
-; Melody
+;
+; Melody (ch3)
+;
 trk_mel_intro_init_sub:
 	nVol	MAIN_VOL
 	nInst	INST_CSSAW1
@@ -64,17 +66,41 @@ trk_mel0:
 	nLpSet	2*2
 -:
 	nOct	4
-	; Introduction
-	nCall	.pt1a
-	nCall	.pt1b
+	; Introduction (0-3, 0-4)
+	nCall	.pt1a  ; 0, 2
+	nCall	.pt1b  ; 1, 3, 4
 	nLpEnd	-
-	; Transition
+	; Transition A (5-6)
 	nCall	.pt2a
 	nCall	.pt2b
-	; Melody A
+	; Melody A (7-24)
+	nCall	.pt3a  ; silence
+	nOct	4
+	nLpSet	2*2  ; 15-22
+-:
+	nCall	.pt1a  ; 0, 2
+	nCall	.pt1b  ; 1, 3, 4
+	nLpEnd	-
 
+	; Transition B (23-24)
+	nRest	RLEN*16  ; 23
+	nRest	RLEN*16  ; 24
+
+	; Melody B (25-40)
+	nLpSet	2
+-:
+	nCall	.pt3b  ; 25
+	nCall	.pt3c  ; 26
+	nCall	.pt1a  ; 27
+	nCall	.pt1b  ; 28
+	nCall	.pt3b  ; 29
+	nCall	.pt3c  ; 30
+	nCall	.pt1a  ; 31
+	nCall	.pt3d  ; 32
+	nLpEnd	-
 	nJump	.top
 
+; Introduction
 .pt1a:
 	nVol	MAIN_VOL
 	nLength	RLEN
@@ -111,7 +137,7 @@ trk_mel0:
 	nLpEnd	-
 	nOff	RLEN*2
 	NRet
-
+; Transition
 .pt2a:
 	nLength	RLEN*2
 	nLpSet	4
@@ -140,26 +166,129 @@ trk_mel0:
 	nD
 	nLpEnd	-
 	nRet
+; Melody A
+.pt3a:
+	nLength	RLEN*16  ; 16 per measure
+	nLpSet	8  ; 8 patterns
+-:
+	nOff
+	nLpEnd	-
+	nRet
+
+.pt3b:
+	nVol	MAIN_VOL
+	nLength	RLEN*2
+	nF
+	nVol	DAMP_VOL
+	nRest
+	nOff	RLEN*4
+	nVol	MAIN_VOL
+	nF	RLEN
+
+	nVol	DAMP_VOL
+	nRest
+	nVol	MAIN_VOL
+	nF
+	nVol	DAMP_VOL
+	nRest
+	nOff	RLEN*2
+	nRet
+
+.pt3c:
+	nVol	MAIN_VOL
+	nLength	RLEN*2
+	nE	RLEN
+	nVol	DAMP_VOL
+	nRest	RLEN
+	nVol	MAIN_VOL
+	nE
+	nVol	DAMP_VOL
+	nRest	RLEN
+	nLpSet	2
+-:
+	nVol	MAIN_VOL
+	nD
+	nVol	DAMP_VOL
+	nRest
+	nLpEnd	-
+	nOff	RLEN*2
+	nVol	MAIN_VOL
+	nRet
+
+.pt3d:
+	nLength	RLEN
+	nVol	MAIN_VOL
+	nF
+	nOff
+	nF	RLEN*2
+	nVol	DAMP_VOL
+	nRest	RLEN*2
+
+	nLpSet	2
+-
+	nVol	MAIN_VOL
+	nG	RLEN*2
+	nVol	DAMP_VOL
+	nRest	RLEN*2
+	nLpEnd	-
+	nOff	RLEN*2
+	nRet
 
 
+
+
+;
+; Melody (ch4)
+;
 trk_mel1:
 	nCall	trk_mel_intro_init_sub
 .top:
 	nLpSet	2*2
 -:
 	nOct	4
-	; Introduction
+	; Introduction (0-3, 0-4)
 	nTrn	-3
 	nCall	trk_mel0.pt1a
 	nTrn	0
 	nCall	.pt1b
 	nLpEnd	-
-	; Transition
+	; Transition A (5-6)
 	nTrn	-3
 	nCall	trk_mel0.pt2a
 	nTrn	0
 	nCall	.pt2b
+	; Melody A (7-14)
+	nCall	trk_mel0.pt3a  ; silence
+	nOct	4
+	nLpSet	2*2  ; 15-22
+-:
+	nTrn	-3
+	nCall	trk_mel0.pt1a  ; 0, 2
+	nTrn	0
+	nCall	pt1b  ; 1, 3, 4
+	nLpEnd	-
+	; Transition B (23-24)
+	nRest	RLEN*16
+	nRest	RLEN*16
+	; Melody B (25-40)
+	nLpSet	2
+-:
+	nTrn	-3
+	nCall	trk_mel0.pt3b  ; 25
+	nCall	trk_mel0.pt3c  ; 26
+	nTrn	-4
+	nCall	trk_mel0.pt1a  ; 27
+	nCall	trk_mel0.pt1b  ; 28
+	nTrn	-3
+	nCall	trk_mel0.pt3b  ; 29
+	nCall	trk_mel0.pt3c  ; 30
+	nTrn	-4
+	nCall	trk_mel0.pt1a  ; 31
+	nTrn	0
+	nCall	.pt4a          ; 32
+	nLpEnd	-
 	nJump	.top
+
 
 .pt1b:
 	nLength	RLEN
@@ -178,7 +307,7 @@ trk_mel1:
 	nRest	RLEN*2
 	nLpEnd	-
 	nOff	RLEN*2
-	NRet
+	nRet
 
 .pt2b:
 	nLength	RLEN*2
@@ -200,34 +329,128 @@ trk_mel1:
 	nRest
 	nRet
 
+.pt4a:
+	nLength	RLEN
+	nVol	MAIN_VOL
+	nD
+	nOff
+	nD	RLEN*2
+	nVol	DAMP_VOL
+	nRest	RLEN*2
 
+	nLpSet	2
+-
+	nVol	MAIN_VOL
+	nD	RLEN*2
+	nVol	DAMP_VOL
+	nRest	RLEN*2
+	nLpEnd	-
+	nOff	RLEN*2
+	nRet
+
+
+
+;
+; Melody (ch5)
+;
 trk_mel2:
 	nCall	trk_mel_intro_init_sub
 .top:
 	nOct	4
-	; Introduction
+	; Introduction (0-3, 0-4)
 	nCall	.intro_bulk
 	nTrn	0
 	nCall	.pt1c
 	nCall	.intro_bulk
 	nTrn	0
 	nCall	.pt1d
-	; Transition
+	; Transition A (5-6)
 	nTrn	9
 	nCall	trk_mel0.pt2a
 	nTrn	0
 	nCall	.pt2b
-	; Melody A
-	nCall	.pt3a
-	nCall	.pt3b
-	nCall	.pt3c
-	nCall	.pt3d
+	; Melody A (7-14) accompaniment
+	nCall	.pt3a  ; 7
+	nCall	.pt3b  ; 8
+	nCall	.pt3c  ; 9
+	nCall	.pt3d  ; 10
 
-	nCall	.pt3b
-	nCall	.pt3e
-	nCall	.pt3f
+	nCall	.pt3b  ; 11
+	nCall	.pt3e  ; 12
+	nCall	.pt3f  ; 13, 14
+	; 15-22 reprise the introduction
+	nCall	.intro_bulk
+	nTrn	0
+	nCall	.pt1c
+	nCall	.intro_bulk
+	nTrn	0
+	nCall	.pt1d
+
+	nCall	.intro_bulk
+	; Transition B (23-24)
+	nCall	.pt4a
+	; Melody B (25-40)
+	nLpSet	2
+-:
+	nTrn	9
+	nCall	trk_mel0.pt3b  ; 25
+	nTrn	0
+	nCall	.pt5a          ; 26
+	nTrn	9
+	nCall	trk_mel0.pt1a  ; 27
+	nTrn	0
+	nCall	trk_mel0.pt1b  ; 28
+	nLpEnd	-
+
+	nStop
 
 	nJump	.top
+
+.pt5a:
+	nVol	MAIN_VOL
+	nLength	RLEN*2
+	nAs	RLEN
+	nVol	DAMP_VOL
+	nRest	RLEN
+	nVol	MAIN_VOL
+	nAs
+	nVol	DAMP_VOL
+	nRest	RLEN
+	nLpSet	2
+-:
+	nVol	MAIN_VOL
+	nG
+	nVol	DAMP_VOL
+	nRest
+	nLpEnd	-
+	nOff	RLEN*2
+	nVol	MAIN_VOL
+	nRet
+
+.pt4a:
+	nLength	RLEN*2
+	nVol	MAIN_VOL
+	nLpSet	4
+-:
+	nOctUp
+	nD
+	nOctDn
+	nG
+	nLpEnd	-
+
+	nLpSet	2
+-:
+	nOctUp
+	nF
+	nOctDn
+	nG
+	nLpEnd	-
+	nF
+	nF
+	nE
+	nD
+	nRet
+
 
 .intro_bulk:
 	nTrn	5
@@ -267,7 +490,6 @@ trk_mel2:
 	nG
 	nF
 	nRet
-	NRet
 
 .pt1d:
 	nCall	.pt1cd_bulk
@@ -315,6 +537,7 @@ trk_mel2:
 	nFs
 	nF
 	nOctDn
+	nOctDn
 	nRet
 
 .pt3a:
@@ -357,7 +580,7 @@ trk_mel2:
 	nRet
 
 .pt3c:
-
+	nLength	RLEN
 	nRest	RLEN*2
 	nG
 	nOff
@@ -367,7 +590,7 @@ trk_mel2:
 	nOctDn
 	nG	RLEN*2
 	nVol	DAMP_VOL
-	nRest	RLEN
+	nRest	RLEN*2
 	nVol	MAIN_VOL
 
 	nG
@@ -436,26 +659,29 @@ trk_mel2:
 	nRest
 	nVol	MAIN_VOL
 	nD
-	; Measure 7
-	nVol	DAMP_VOL
-	nRest
-	nVol	MAIN_VOL
-	nOff	RLEN*14
-	nRet
+	nJump	trk_mel3.pt3c_damp
 
+;
+; Melody (ch6)
+;
 trk_mel3:
 	nInst	INST_CSORGAN1
 .top:
-	; Introduction
-	; Wait for most of introduction and transition
-	nLpSet	8+1
+	; Introduction (0-4)
+	nLpSet	3
 -:
 	nRest	RLEN*16
 	nLpEnd	-
-	nLength	RLEN*2
-	; Last measure of transition
+	nOct	4
+	nCall	.pt1a  ; 3
+	nLpSet	4+1  ; 4-5
+-:
+	nOff	RLEN*16
+	nLpEnd	-
+	; Last measure of transition (6)
 	nOct	4
 	nVol	MAIN_VOL
+	nLength	RLEN*2
 	nLpSet	3
 -:
 	nG
@@ -463,14 +689,70 @@ trk_mel3:
 	nLpEnd	-
 	nG
 	nA
-	; Melody A
-	nCall	.pt3a
-	nCall	.pt3b
-	nCall	.pt3c
-	nCall	.pt3a
-	nCall	.pt3b
-	nCall	.pt3d
+	; Melody A (7-22)
+	nCall	.pt3a    ; 7-9
+	nCall	.pt1a    ; 10
+	nCall	.pt3b    ; 11-12
+	nCall	.pt3c    ; 13-14
+	nCall	.pt3a    ; 15-17
+	nCall	.pt1a    ; 18
+	nCall	.pt3b    ; 19-20
+	nCall	.pt3d    ; 21-22
+	; Transition 2 (23-24)
+	nRest	RLEN*16  ; 23 is just waiting
+	nCall	.pt4a    ; 24
+	; Melody B (25-40)
+	nOff	RLEN*16  ; 25
+	nRest	RLEN*16  ; 26
+	nRest	RLEN*16  ; 27
+	nCall	.pt4a    ; 28
+	nOff	RLEN*16  ; 29
+	nRest	RLEN*16  ; 30
+	nRest	RLEN*16  ; 31
+	nCall	.pt4b    ; 32
+	nCall	.pt4c    ; 33
+	nCall	.pt4d    ; 34
+	nOff	RLEN*16  ; 35
+	nRest	RLEN*16  ; 36
+	nCall	.pt4c    ; 37
+	nCall	.pt4d    ; 38
+	nCall	.pt4e    ; 39
+	nOff	RLEN*16  ; 40
+
+	nStop
+
 	nJump	.top
+
+.pt1a:
+	nLength	RLEN
+	nG	RLEN*2
+	nOctUp
+
+	nPanBoth
+	nVol	MAIN_VOL
+	nG
+	nVol	DAMP_VOL
+	nRest
+
+	; Little creative license due to a lack of smooth panning.
+	nLpSet	3
+-
+	nPanL
+	nVol	MAIN_VOL
+	nG
+	nVol	DAMP_VOL
+	nRest
+	nPanR
+	nVol	MAIN_VOL
+	nG
+	nVol	DAMP_VOL
+	nRest
+	nLpEnd	-
+	nPanBoth
+	nOctDn
+	nOctDn
+	nRet
+
 
 .pt3a:
 	nLength	RLEN*2
@@ -516,49 +798,12 @@ trk_mel3:
 	nVol	MAIN_VOL-3
 	nE
 	nD
-	; Measure 3 - Has a panning effect that requires assistance of mel1.
-	nOctDn
-	nG
-	nLength	RLEN
-	nOctUp
-
-	nPanL
-	nVol	MAIN_VOL-(0)
-	nG	
-	nVol	DAMP_VOL-(0)
-	nRest
-	nVol	MAIN_VOL-(1)
-	nG	
-	nVol	DAMP_VOL-(1)
-	nRest
-	nVol	MAIN_VOL-(2)
-	nG	
-	nVol	DAMP_VOL-(2)
-	nRest
-	nVol	MAIN_VOL-(3)
-	nG	
-	nVol	DAMP_VOL-(3)
-	nRest
-	nVol	MAIN_VOL-(4)
-	nG	
-	nVol	DAMP_VOL-(4)
-	nRest
-	nVol	MAIN_VOL-(5)
-	nG	
-	nVol	DAMP_VOL-(5)
-	nRest
-	nVol	MAIN_VOL-(6)
-	nG	
-	nVol	DAMP_VOL-(6)
-	nRest
 	nRet
 
 .pt3b:
 	nLength	RLEN*2
-	nPanBoth
 	; Measure 4
 	nOff
-	nOctDn
 	nVol	MAIN_VOL
 	nB
 	nVol	DAMP_VOL
@@ -607,6 +852,7 @@ trk_mel3:
 	nRest
 	nVol	MAIN_VOL
 	nG
+.pt3c_damp:
 	; Measure 7
 	nVol	DAMP_VOL
 	nRest
@@ -628,6 +874,104 @@ trk_mel3:
 	nAs
 	nJump	.pt3c_end
 
+.pt4a:
+	nLength	RLEN*2
+	nLpSet	2
+-:
+	nVol	MAIN_VOL
+	nG
+	nVol	DAMP_VOL
+	nRest
+	nLpEnd	-
+	nVol	MAIN_VOL
+	nG
+	nG
+	nFs
+	nF
+	nRet
+
+.pt4b:
+	nLength	RLEN*2
+	nOff
+	nVol	MAIN_VOL
+	nPanBoth
+	nOctUp
+	nOctUp
+	nC
+	nOctDn
+	nB
+	nAs
+	nG
+	nFs
+	nF
+	nE
+	nOctDn
+	nRet
+
+.pt4c:
+	nLength	RLEN*2
+	nPanR
+	nAs
+	nOff
+	nPanBoth
+	nA
+	nG
+	nPanL
+	nOctUp
+	nC
+	nOff
+	nOctDn
+	nPanBoth
+	nAs
+	nA
+	nRet
+
+.pt4d:
+	nLength	RLEN*2
+	nPanR
+	nG
+	nOff
+	nPanBoth
+	nA
+	nG
+	nPanL
+	nAs
+	nOff
+	nPanBoth
+	nA
+	nG
+	nRet
+
+.pt4e:
+	nLength	RLEN*2
+	nPanR
+	nG
+	nOff
+	nPanBoth
+	nA
+	nG
+	nPanL
+	nAs
+	nOff
+	nPanBoth
+	nOctUp
+	nC
+	nD
+	nPanBoth
+	nRet
+
+.pt4f:
+	nLength	RLEN*2
+	nG
+	nVol	DAMP_VOL
+	nRest
+	nOff	RLEN*14
+	nVol	MAIN_VOL
+	nRet
+
+
+
+
 
 ; Bassline
 trk_bass:
@@ -635,33 +979,64 @@ trk_bass:
 	nVol	MAIN_VOL
 .top:
 	nOct	2
+	; Introduction 0-3, 0-4
 	nLpSet	2
 -:
-	nCall	.pt1a
-	nCall	.pt1b
-	nCall	.pt1a
-	nCall	.pt1c
+	nInst	INST_CSBASS1_OCT
+	nCall	.pt1a  ; 0
+	nCall	.pt1b  ; 1
+	nCall	.pt1a  ; 2
+	nCall	.pt1c  ; 3  sets instrument
 	nLpEnd	-
+	;  Transition (5-6)
 	nCall	.pt1d
+	; Melody A (7-14)
+	nLpSet	2
+-:
+	nInst	INST_CSBASS1
+	nCall	.pt1a  ; 7
+	nCall	.pt1b  ; 8
+	nCall	.pt1a  ; 9
+	nCall	.pt1c  ; 10
+	nLpEnd	-
+	nLpSet	2  ; 15-22, basically the intro again.
+-:
+	nInst	INST_CSBASS1_OCT
+	nCall	.pt1a  ; 15
+	nCall	.pt1b  ; 16
+	nCall	.pt1a  ; 17
+	nCall	.pt1c  ; 18
+	nLpEnd	-
+	; Transition B (23-24)
+	nCall	.pt1d  ; 23-24
+	; Melody B (25-40)
+	nInst	INST_CSBASS1
+	nLpSet	4  ; 25-40
+-:
+	nCall	.pt4a
+	nCall	.pt4b
+	nCall	.pt4c
+	nCall	.pt4d
+	nLpEnd	-
 
 	nJump	.top
 
 
 .pt1a:
-	nLength	RLEN
-	nInst	INST_CSBASS1_OCT
 	nVol	MAIN_VOL
-	nG	RLEN*2
+	nLength	RLEN*2
+	nG
 	nVol	DAMP_VOL
-	nRest	RLEN*2
+	nRest
 	nOff	RLEN*4
 	nVol	MAIN_VOL
+	nG	RLEN
+	nOff	RLEN
 	nG
-	nOff
-	nG	RLEN*2
 	nVol	DAMP_VOL
-	nRest	RLEN*2
-	nOff	RLEN*2
+	nRest
+	nOff
+	nVol	MAIN_VOL
 	nRet
 
 .pt1b:
@@ -674,7 +1049,7 @@ trk_bass:
 	nRest	RLEN*2
 	nOctUp
 	nLpSet	2
--
+-:
 	nVol	MAIN_VOL
 	nC	RLEN*2
 	nVol	DAMP_VOL
@@ -685,6 +1060,7 @@ trk_bass:
 	nRet
 
 .pt1c:
+	nLength	RLEN
 	nVol	MAIN_VOL
 	nF
 	nOff
@@ -730,12 +1106,102 @@ trk_bass:
 -:
 	nC
 	nVol	DAMP_VOL
-	nRest	RLEN*2
+	nRest
 	nVol	MAIN_VOL
 	nLpEnd	-
 	nOctDn
-	nB	RLEN*2
-	nA	RLEN*2
+	nLength	RLEN*2
+	nB
+	nA
+	nRet
+
+.pt4a:
+	nLength	RLEN*2
+	nVol	MAIN_VOL
+	nG
+	nVol	DAMP_VOL
+	nRest
+	nVol	MAIN_VOL
+	nOctUp
+	nD
+	nOctDn
+	nG
+	nOctUp
+	nG
+	nVol	DAMP_VOL
+	nRest
+	nVol	MAIN_VOL
+	nF
+	nE
+	nOctDn
+	nRet
+
+.pt4b:
+	nLength	RLEN*2
+	nG	RLEN*4
+	nF
+	nG
+	nOctUp
+	; TODO: ch6 needs to harmonize with FED here
+	nAs
+	nVol	DAMP_VOL
+	nRest
+	nVol	MAIN_VOL
+	nA
+	nG
+	nOctDn
+	nRet
+
+.pt4c:
+	nLength	RLEN
+	nLpSet	2
+-:
+	nVol	MAIN_VOL
+	nAs
+	nVol	DAMP_VOL
+	nRest
+	nLpEnd	-
+	nRest	RLEN*2
+	nOff	RLEN*2
+
+	nOctUp
+	nLpSet	2
+-:
+	nVol	MAIN_VOL
+	nC
+	nVol	DAMP_VOL
+	nRest
+	nLpEnd	-
+	nRest	RLEN*2
+	nOff	RLEN*2
+
+	nOctDn
+	nVol	MAIN_VOL
+	nRest
+
+.pt4d:  ; TODO: Need harmony up a fifth from this.
+	nLength	RLEN
+	nLpSet	2
+-:
+	nVol	MAIN_VOL
+	nG
+	nVol	DAMP_VOL
+	nRest
+	nLpEnd	-
+
+	nLength	RLEN*2
+	nRest
+
+	nVol	MAIN_VOL
+	nG
+	nVol	DAMP_VOL
+	nRest
+
+	nVol	MAIN_VOL
+	nG
+	nRest
+	nVol	DAMP_VOL
+	nRest
 	nRet
 
 	nTrackFooter
