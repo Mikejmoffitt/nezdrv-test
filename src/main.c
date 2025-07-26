@@ -113,6 +113,59 @@ static void play_track(uint16_t id)
 	             TEXT_ATTR, trk->author);
 }
 
+#define SYNCPOINT 32 
+
+typedef struct HChartEntry
+{
+	int16_t lines;
+	uint16_t idx;
+	uint16_t color;
+	uint16_t pad;
+} HChartEntry;
+
+static const HChartEntry hirq_chart[] =
+{
+	{ 0, 0, 0},
+	{ 8-1, SAI_PAL333(7, 0, 0), SAI_PAL333(3, 0, 0)},
+	{ 8-1, SAI_PAL333(0, 7, 0), SAI_PAL333(0, 3, 0) },
+	{ 8-1, SAI_PAL333(0, 0, 7), SAI_PAL333(0, 0, 3) },
+	{ 8-1, SAI_PAL333(7, 7, 0), SAI_PAL333(0, 4, 4) },
+	{ 8-1, SAI_PAL333(0, 0, 0), SAI_PAL333(1, 2, 2) },
+	{-1, 0, 0},
+};
+
+static const HChartEntry *s_entry_ptr;
+
+static void hirq_chart_callback(void)
+{
+	asm __volatile__ (
+		"lea	(0xC00008+1).l, %%a0;"
+		"read:cmpi.b	#240/2, (%%a0);"
+		"bcs.b	read;"
+		: : : "a0"
+	);
+	sai_vdp_set_autoinc(2);
+	sai_vdp_set_addr_cramw(0);
+	sai_vdp_write_word(s_entry_ptr->color);
+	s_entry_ptr++;
+	if (s_entry_ptr->lines < 0) sai_vdp_set_hint_en(false);
+	else sai_vdp_set_hint_line(s_entry_ptr->lines);
+}
+
+static void hirq_chart_reset(void)
+{
+	s_entry_ptr = hirq_chart;
+	sai_vdp_set_hint_line(0);
+	sai_vdp_set_hint_en(true);
+}
+
+static void hirq_chart_init(void)
+{
+	g_irq_hbl_callback = hirq_chart_callback;
+	hirq_chart_reset();
+	sai_vdp_set_hint_en(true);
+}
+
 void __attribute__((noreturn)) main(void)
 {
 	sai_init();
@@ -145,6 +198,7 @@ void __attribute__((noreturn)) main(void)
 
 	uint16_t track_id = 0;
 
+	hirq_chart_init();
 
 	play_track(track_id);
 	while (true)
@@ -167,8 +221,9 @@ void __attribute__((noreturn)) main(void)
 			nezdrv_play_sfx(0, 0);
 		}
 
-
 		nezdrv_update();
+		sai_irq_vbl_wait();
+		hirq_chart_reset();
 		sai_finish();
 	}
 }
