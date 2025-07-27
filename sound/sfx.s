@@ -77,7 +77,7 @@ snd_csdoor:
 	nStop
 
 snd_bounce:
-	nSfxCh	NVM_CHID_OPN4
+	nSfxCh	NVM_CHID_OPN0
 	nInst	INST_SAW
 	nLength	1
 	nOct	4
@@ -99,10 +99,11 @@ snd_bounce:
 	nStop
 
 snd_psgshit:
-	nSfxCh	NVM_CHID_PSG0
+	nSfxCh	NVM_CHID_PSGN
+	nNoise	0
 	nLength	32
 	nInst	ENV_FASTDECAY
-	nOct	0
+	nOct	2
 	nA
 	nOff
 	nStop

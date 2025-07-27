@@ -197,6 +197,8 @@ void __attribute__((noreturn)) main(void)
 	}
 
 	uint16_t track_id = 0;
+	uint16_t sfx_ch_id = 0;
+	uint16_t sfx_trk_id = 0;
 
 	hirq_chart_init();
 
@@ -216,10 +218,21 @@ void __attribute__((noreturn)) main(void)
 			play_track(track_id);
 		}
 
+
+		if (g_sai_in[0].pos & SAI_BTN_DOWN)
+		{
+			sfx_trk_id++;
+		}
+		if (g_sai_in[0].pos & SAI_BTN_UP)
+		{
+			sfx_trk_id--;
+		}
 		if (g_sai_in[0].pos & SAI_BTN_C)
 		{
-			nezdrv_play_sfx(0, 0);
+			nezdrv_play_sfx(sfx_ch_id, sfx_trk_id);
 		}
+		sfx_ch_id++;
+		if (sfx_ch_id > 2) sfx_ch_id = 0;
 
 		nezdrv_update();
 		sai_irq_vbl_wait();
