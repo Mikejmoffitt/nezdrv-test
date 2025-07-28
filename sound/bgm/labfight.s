@@ -8,6 +8,7 @@
 	include	"pcm/pcm.inc"
 
 MAIN_VOL = 7Ah
+PSG_VOL = 0Fh
 DAMP_VOL = MAIN_VOL-6
 RLEN = 5
 TEMPO = 0CCh
@@ -16,6 +17,8 @@ INST_CSBASS1_OCT = 0
 INST_CSBASS1 = 1
 INST_CSSAW1 = 2
 INST_CSORGAN1 = 3
+ENV_HAT_OPEN = 4
+ENV_HAT_CLOSED = 5
 
 	nTrackHeader NEZ_PCMRATE_DEFAULT, TEMPO, trk_list, instruments_list
 
@@ -30,7 +33,7 @@ trk_list:
 	nTrackRelPtr trk_unused
 	nTrackRelPtr trk_unused
 	nTrackRelPtr trk_unused
-	nTrackRelPtr trk_unused
+	nTrackRelPtr trk_drum_psg
 	nTrackListEnd
 
 trk_unused:
@@ -41,6 +44,8 @@ instruments_list:
 	nTrackRelPtr .inst_csbass1
 	nTrackRelPtr .inst_cssaw1
 	nTrackRelPtr .inst_csorgan1
+	nTrackRelPtr .env_hat_open
+	nTrackRelPtr .env_hat_closed
 	nTrackListEnd
 
 .inst_csbass1_oct:
@@ -51,6 +56,76 @@ instruments_list:
 	binclude "inst/cssaw1.bin"
 .inst_csorgan1:
 	binclude "inst/csorgan1.bin"
+.env_hat_open:
+	include "env/hat_open.s"
+.env_hat_closed:
+	include "env/hat_closed.s"
+
+;
+; Drums (psg)
+;
+trk_drum_psg:
+	nNoise	03h
+	nVol	PSG_VOL
+	nInst	ENV_HAT_OPEN
+	nOct	4
+.top:
+	; Introduction (0-3, 0-4)
+	nLength	RLEN*4
+	nLpSet	4*8
+-:
+	nC
+	nLpEnd	-
+	; Transition A (5-6)
+	nCall	.transition_sub
+	; Melody A (7-14)
+	nCall	.mel_crash
+	nLpSet	7
+-:
+	nCall	.mel_sub
+	nLpEnd	-
+	nCall	.mel_crash ; 15
+	nLpSet	7          ; 16-22
+-:
+	nCall	.mel_sub
+	nLpEnd	-
+	; Transition B (5-6)
+	nCall	.transition_sub
+
+	nStop
+
+; one measure of quarter note hat hits starting with an open hit
+.mel_crash:
+	nLength	RLEN*4
+	nInst	ENV_HAT_OPEN
+	nC
+	nInst	ENV_HAT_CLOSED
+	nLpSet	3
+-:
+	nC
+	nLpEnd	-
+	nRet
+
+; one measure of quarter note hat hits
+.mel_sub:
+	nLength	RLEN*4
+	nInst	ENV_HAT_CLOSED
+	nLpSet	4
+-:
+	nC
+	nLpEnd	-
+	nRet
+
+
+.transition_sub:
+	nC	RLEN*10
+	nC	RLEN*10
+	nC	RLEN*8
+	nC	RLEN*4
+	nRet
+
+
+
 
 ;
 ; Melody (ch3)

@@ -26,6 +26,11 @@ static const uint8_t bgm_dangus[] =
 	#embed "wrk/sound/bgm/dangus.bin"
 };
 
+static const uint8_t bgm_straight_life[] =
+{
+	#embed "wrk/sound/bgm/straight_life.bin"
+};
+
 //
 // PCM Data.
 //
@@ -90,8 +95,9 @@ typedef struct TrackListing
 
 static const TrackListing k_tracks[] =
 {
-	{bgm_labfight, "LABYRINTH FIGHT", "PIXEL"},
 	{bgm_dangus, "DANGUS", "MIKE MOFFITT"},
+	{bgm_labfight, "LABYRINTH FIGHT", "PIXEL"},
+	{bgm_straight_life, "STRAIGHT LIFE", "FREDDIE HUBBARD"},
 };
 
 #define TRACK_COUNT (sizeof(k_tracks)/sizeof(k_tracks[0]))
