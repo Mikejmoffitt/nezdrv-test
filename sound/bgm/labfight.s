@@ -8,7 +8,7 @@
 	include	"pcm/pcm.inc"
 
 MAIN_VOL = 7Ah
-PSG_VOL = 0Fh
+PSG_VOL = 0Dh
 DAMP_VOL = MAIN_VOL-6
 RLEN = 5
 TEMPO = 0CCh
@@ -65,16 +65,16 @@ instruments_list:
 ; Drums (psg)
 ;
 trk_drum_psg:
-	nNoise	03h
+	nNoise	07h
 	nVol	PSG_VOL
 	nInst	ENV_HAT_OPEN
-	nOct	4
+	nOct	7
 .top:
 	; Introduction (0-3, 0-4)
 	nLength	RLEN*4
 	nLpSet	4*8
 -:
-	nC
+	nB
 	nLpEnd	-
 	; Transition A (5-6)
 	nCall	.transition_sub
@@ -98,11 +98,11 @@ trk_drum_psg:
 .mel_crash:
 	nLength	RLEN*4
 	nInst	ENV_HAT_OPEN
-	nC
+	nB
 	nInst	ENV_HAT_CLOSED
 	nLpSet	3
 -:
-	nC
+	nB
 	nLpEnd	-
 	nRet
 
@@ -112,16 +112,17 @@ trk_drum_psg:
 	nInst	ENV_HAT_CLOSED
 	nLpSet	4
 -:
-	nC
+	nB
 	nLpEnd	-
 	nRet
 
 
 .transition_sub:
-	nC	RLEN*10
-	nC	RLEN*10
-	nC	RLEN*8
-	nC	RLEN*4
+	nInst	ENV_HAT_OPEN
+	nB	RLEN*10
+	nB	RLEN*10
+	nB	RLEN*8
+	nB	RLEN*4
 	nRet
 
 
