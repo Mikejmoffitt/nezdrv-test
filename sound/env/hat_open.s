@@ -1,0 +1,15 @@
+	db	0Fh
+	db	0Eh
+	db	0Eh
+	db	0Dh
+	db	0Dh
+	db	0Ch
+	db	0Ch
+	db	0Bh
+	db	0Bh
+	db	0Ah
+	db	NVM_MACRO_LPSET
+	db	09h
+	db	NVM_MACRO_LPEND
+	db	00h
+	db	NVM_MACRO_END

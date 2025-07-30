@@ -5,7 +5,7 @@
 	include	"pcm/pcm.inc"
 
 
-MAIN_VOL = 7Ah
+MAIN_VOL = 74h
 ; typical rest value
 RLEN = 12
 ; stecatto hit
@@ -22,7 +22,7 @@ INST_BASS2 = 3
 INST_BRASS1 = 4
 INST_PSG0 = 5
 
-	nTrackHeader NEZ_PCMRATE_DEFAULT, TEMPO, trk_list, instruments_list
+	nTrackHeader TEMPO, trk_list, instruments_list
 
 trk_list:
 	nTrackRelPtr trk_a
@@ -32,8 +32,8 @@ trk_list:
 	nTrackRelPtr trk_e
 	nTrackRelPtr trk_drums
 
-	nTrackRelPtr trk_g
-	nTrackRelPtr trk_h
+	nTrackRelPtr trk_unused; trk_g
+	nTrackRelPtr trk_unused; trk_h
 	nTrackRelPtr trk_unused
 	nTrackRelPtr trk_unused
 	nTrackListEnd
@@ -88,7 +88,7 @@ instruments_list:
 ; Mostly backs the FM4/5 parts
 trk_g:
 	nInst	INST_PSG0
-	nVol	0Ch
+	nVol	0Eh
 .loop:
 	nOct	2
 	nCall	trk_d.pt1_body
@@ -103,7 +103,7 @@ trk_g:
 ; Mostly backs the FM4/5 parts
 trk_h:
 	nInst	INST_PSG0
-	nVol	0Ch
+	nVol	0Eh
 .loop:
 	nOct	2
 	nCall	trk_e.pt1_body
@@ -665,44 +665,45 @@ trk_e:
 ; Drums
 ;
 trk_drums:
+	nVol	7Fh
 	nPcmMode 1
 	nLength RLEN
 .loop:
 	nLpSet 3
 -:
-	nPcmPlay PCM_KICK1
+	nPcmPlay PCM_CSKICK1
 	nRest
-	nPcmPlay PCM_SNARE1
+	nPcmPlay PCM_CSSNARE1
 	nRest
-	nPcmPlay PCM_KICK1
-	nPcmPlay PCM_KICK1
-	nPcmPlay PCM_SNARE1
-	nPcmPlay PCM_KICK1
+	nPcmPlay PCM_CSKICK1
+	nPcmPlay PCM_CSKICK1
+	nPcmPlay PCM_CSSNARE1
+	nPcmPlay PCM_CSKICK1
 	nRest
-	nPcmPlay PCM_KICK1
-	nPcmPlay PCM_SNARE1
+	nPcmPlay PCM_CSKICK1
+	nPcmPlay PCM_CSSNARE1
 	nRest
-	nPcmPlay PCM_KICK1
-	nPcmPlay PCM_KICK1
-	nPcmPlay PCM_SNARE1
+	nPcmPlay PCM_CSKICK1
+	nPcmPlay PCM_CSKICK1
+	nPcmPlay PCM_CSSNARE1
 	nRest
 	nLpEnd	-
-	nPcmPlay PCM_KICK1
+	nPcmPlay PCM_CSKICK1
 	nRest
-	nPcmPlay PCM_SNARE1
+	nPcmPlay PCM_CSSNARE1
 	nRest
-	nPcmPlay PCM_KICK1
-	nPcmPlay PCM_KICK1
-	nPcmPlay PCM_SNARE1
-	nPcmPlay PCM_KICK1
-	nPcmPlay PCM_KICK1
-	nPcmPlay PCM_SNARE1
-	nPcmPlay PCM_SNARE1
-	nPcmPlay PCM_KICK1
-	nPcmPlay PCM_SNARE1
-	nPcmPlay PCM_KICK1
-	nPcmPlay PCM_SNARE1
-	nPcmPlay PCM_SNARE1
+	nPcmPlay PCM_CSKICK1
+	nPcmPlay PCM_CSKICK1
+	nPcmPlay PCM_CSSNARE1
+	nPcmPlay PCM_CSKICK1
+	nPcmPlay PCM_CSKICK1
+	nPcmPlay PCM_CSSNARE1
+	nPcmPlay PCM_CSSNARE1
+	nPcmPlay PCM_CSKICK1
+	nPcmPlay PCM_CSSNARE1
+	nPcmPlay PCM_CSKICK1
+	nPcmPlay PCM_CSSNARE1
+	nPcmPlay PCM_CSSNARE1
 	nJump	.loop
 
 	nTrackFooter

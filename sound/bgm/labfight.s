@@ -7,10 +7,10 @@
 	include	"../../nezdrv/src/opn.inc"
 	include	"pcm/pcm.inc"
 
-MAIN_VOL = 7Ah
+MAIN_VOL = 77h
 PSG_VOL = 0Dh
 DAMP_VOL = MAIN_VOL-6
-RLEN = 5
+RLEN = 5  ; This is one row in the .xm file.
 TEMPO = 0CCh
 
 INST_CSBASS1_OCT = 0
@@ -20,7 +20,10 @@ INST_CSORGAN1 = 3
 ENV_HAT_OPEN = 4
 ENV_HAT_CLOSED = 5
 
-	nTrackHeader NEZ_PCMRATE_DEFAULT, TEMPO, trk_list, instruments_list
+;
+; Header
+;
+	nTrackHeader TEMPO, trk_list, instruments_list
 
 trk_list:
 	nTrackRelPtr trk_bass   ; timing OK
@@ -28,7 +31,7 @@ trk_list:
 	nTrackRelPtr trk_mel1   ; timing OK
 	nTrackRelPtr trk_mel2
 	nTrackRelPtr trk_mel3   ; timing OK
-	nTrackRelPtr trk_unused
+	nTrackRelPtr trk_drum_pcm
 
 	nTrackRelPtr trk_unused
 	nTrackRelPtr trk_unused
@@ -36,9 +39,9 @@ trk_list:
 	nTrackRelPtr trk_drum_psg
 	nTrackListEnd
 
-trk_unused:
-	nStop
-
+;
+; Instruments
+;
 instruments_list:
 	nTrackRelPtr .inst_csbass1_oct
 	nTrackRelPtr .inst_csbass1
@@ -62,23 +65,236 @@ instruments_list:
 	include "env/hat_closed.s"
 
 ;
+; Track Data
+;
+
+trk_unused:
+	nStop
+
+;
+; Drums (pcm)
+;
+trk_drum_pcm:
+	nVol	7Fh
+	nPcmMode 1
+	nLength	RLEN*2
+.top:
+	; Introduction (0-3,0-4)
+	nCall	.pt1a
+	nCall	.pt1b
+	nCall	.pt1a
+	nCall	.pt1c
+	nCall	.pt1a
+	nCall	.pt1b
+	nCall	.pt1a
+	nCall	.pt1d
+	; Transition A (5-6)
+	nCall	.pt2a
+	nCall	.pt2b
+	; Melody A (7-22)
+	nLpSet	4
+-:
+	nCall	.pt1a
+	nCall	.pt1b
+	nCall	.pt1a
+	nCall	.pt1c
+	nLpEnd	-
+	; Transition B (23-24)
+	nCall	.pt4a
+	nCall	.pt4b
+	; Melody B (25-40)
+	nCall	.pt1b  ; 25
+	nCall	.pt5a  ; 26
+	nCall	.pt1a  ; 27
+	nCall	.pt5b  ; 28
+	nCall	.pt1b  ; 29
+	nCall	.pt5c  ; 30
+	nCall	.pt5d  ; 31
+	nCall	.pt1d  ; 32
+	nCall	.pt1a  ; 33
+	nCall	.pt1b  ; 34
+	nCall	.pt1a  ; 35
+	nCall	.pt5e  ; 36
+	nCall	.pt1a  ; 37
+	nCall	.pt1b  ; 38
+	nCall	.pt5f  ; 39-40
+
+	nJump	.top
+
+.pt1a:
+	nPcmPlay PCM_CSKICK1
+	nRest
+	nPcmPlay PCM_CSSNARE1
+	nRest
+	nPcmPlay PCM_CSKICK1
+	nPcmPlay PCM_CSKICK1
+	nPcmPlay PCM_CSSNARE1
+	nRest
+	nRet
+
+.pt1b:
+	nPcmPlay PCM_CSKICK1
+	nRest
+	nPcmPlay PCM_CSSNARE1
+	nPcmPlay PCM_CSKICK1
+	nRest
+	nPcmPlay PCM_CSKICK1
+	nPcmPlay PCM_CSSNARE1
+	nRest
+	nRet
+
+.pt1c:
+	nRest
+	nPcmPlay PCM_CSKICK1
+	nPcmPlay PCM_CSSNARE1
+	nPcmPlay PCM_CSKICK1
+	nRest
+	nPcmPlay PCM_CSKICK1
+	nVol	7Bh
+	nPcmPlay PCM_CSSNARE1
+	nVol	7Fh
+	nPcmPlay PCM_CSSNARE1
+	nRet
+
+.pt1d:
+	nRest
+	nPcmPlay PCM_CSKICK1
+	nPcmPlay PCM_CSSNARE1
+	nPcmPlay PCM_CSKICK1
+	nRest
+	nPcmPlay PCM_CSKICK1
+	nVol	7Fh
+	nPcmPlay PCM_CSSNARE1
+	nRest
+	nRet
+
+.pt2a:
+	nPcmPlay PCM_CSSNARE1, RLEN*4  ; TODO: Should be a combo kick/snare
+	nPcmPlay PCM_CSKICK1
+	nVol	79h
+	nPcmPlay PCM_CSSNARE1, RLEN
+	nVol	7Fh
+	nPcmPlay PCM_CSSNARE1, RLEN*3
+	nPcmPlay PCM_CSKICK1
+	nVol	7Bh
+	nPcmPlay PCM_CSSNARE1, RLEN*4
+	nVol	7Fh
+	nRet
+
+.pt2b:
+	nPcmPlay PCM_CSSNARE1, RLEN*6  ; TODO: combo kick/snare
+	nVol	7Bh
+	nPcmPlay PCM_CSSNARE1, RLEN*4  ; TODO: combo kick/snare
+	nVol	7Fh
+	nPcmPlay PCM_CSKICK1
+	nPcmPlay PCM_CSSNARE1
+	nPcmPlay PCM_CSSNARE1
+	nRet
+
+.pt4a:
+	nPcmPlay PCM_CSSNARE1
+	nRest
+	nPcmPlay PCM_CSKICK1, RLEN*6
+	nPcmPlay PCM_CSKICK1
+	nPcmPlay PCM_CSSNARE1, RLEN*4
+	nRet
+
+.pt4b:
+	nPcmPlay PCM_CSSNARE1, RLEN*6  ; TODO: combo kick/snare
+	nVol	7Bh
+	nPcmPlay PCM_CSSNARE1, RLEN*4  ; TODO: combo kick/snare
+	nVol	7Fh
+	nPcmPlay PCM_CSKICK1
+	nPcmPlay PCM_CSSNARE1, RLEN
+	nVol	7Dh
+	nPcmPlay PCM_CSSNARE1, RLEN
+	nVol	7Fh
+	nPcmPlay PCM_CSSNARE1
+	nRet
+
+.pt5a:
+	nPcmPlay PCM_CSKICK1, RLEN*6
+	nPcmPlay PCM_CSSNARE1
+	nPcmPlay PCM_CSKICK1, RLEN*4
+	nPcmPlay PCM_CSSNARE1, RLEN*4
+	nRet
+
+.pt5b:
+	nPcmPlay PCM_CSKICK1, RLEN*4
+	nPcmPlay PCM_CSSNARE1
+	nPcmPlay PCM_CSSNARE1, RLEN*4  ; TODO: combo kick/snare
+	nPcmPlay PCM_CSSNARE1, RLEN  ; TODO: combo kick/snare
+	nVol	7Ah
+	nPcmPlay PCM_CSSNARE1, RLEN
+	nVol	7Fh
+	nPcmPlay PCM_CSSNARE1, RLEN*4
+	nRet
+
+.pt5c:
+	nLpSet	2
+-:
+	nPcmPlay PCM_CSKICK1, RLEN*4
+	nPcmPlay PCM_CSSNARE1, RLEN*4
+	nLpEnd	-
+	nRet
+
+.pt5d:
+	nLpSet	2
+-:
+	nPcmPlay PCM_CSKICK1
+	nPcmPlay PCM_CSKICK1
+	nPcmPlay PCM_CSSNARE1, RLEN*4
+	nLpEnd	-
+	nRet
+
+.pt5e:
+	nRest
+	nPcmPlay PCM_CSKICK1
+	nPcmPlay PCM_CSSNARE1, RLEN*4
+	nPcmPlay PCM_CSSNARE1, RLEN*4  ; TODO: combo kick/snare
+	nPcmPlay PCM_CSSNARE1, RLEN*4  ; TODO: combo kick/snare
+	nRet
+
+.pt5f:
+	; 39
+	nLpSet	2
+-:
+	nPcmPlay PCM_CSKICK1
+	nVol	78h
+	nPcmPlay PCM_CSSNARE1, RLEN
+	nVol	7Bh
+	nPcmPlay PCM_CSSNARE1, RLEN
+	nVol	7Fh
+	nPcmPlay PCM_CSSNARE1
+	nLpEnd	-
+	nPcmPlay PCM_CSKICK1
+	nPcmPlay PCM_CSKICK1
+	; 40
+	nPcmPlay PCM_CSSNARE1
+	nPcmPlay PCM_CSKICK1, RLEN
+	nPcmPlay PCM_CSSNARE1, RLEN*3
+	nPcmPlay PCM_CSSNARE1
+
+	nPcmPlay PCM_CSKICK1  ; TODO: slowed-down snare hits
+	nPcmPlay PCM_CSKICK1  ; TODO: slowed-down snare hits
+	nPcmPlay PCM_CSSNARE1
+	nPcmPlay PCM_CSSNARE1
+	nRet
+
+
+;
 ; Drums (psg)
 ;
 trk_drum_psg:
 	nNoise	07h
-	nVol	PSG_VOL
-	nInst	ENV_HAT_OPEN
 	nOct	7
 .top:
+	nVol	PSG_VOL
 	; Introduction (0-3, 0-4)
-	nLength	RLEN*4
-	nLpSet	4*8
--:
-	nB
-	nLpEnd	-
+	nCall	.pt1a
 	; Transition A (5-6)
 	nCall	.transition_sub
-	; Melody A (7-14)
+	; Melody A (7-22)
 	nCall	.mel_crash
 	nLpSet	7
 -:
@@ -89,10 +305,107 @@ trk_drum_psg:
 -:
 	nCall	.mel_sub
 	nLpEnd	-
-	; Transition B (5-6)
+	; Transition B (23-24)
 	nCall	.transition_sub
+	; Melody B
+	nCall	.pt4a  ; 25
+	nCall	.pt4b  ; 26
+	nCall	.pt4c  ; 27
+	nCall	.pt4d  ; 28
+	nCall	.pt4a  ; 29
+	nCall	.pt4e  ; 30
+	nCall	.pt4f  ; 31
+	nCall	.pt4g  ; 32
+	nCall	.pt1a
+	nJump	.top
 
-	nStop
+	; 8 measures of cymbal on the quarter notes
+.pt1a:
+	nInst	ENV_HAT_OPEN
+	nLength	RLEN*4
+	nLpSet	4*8
+-:
+	nB
+	nLpEnd	-
+	nRet
+
+.pt4a:
+	; 25
+	nLength	RLEN*2
+	nInst	ENV_HAT_OPEN
+	nB
+	nInst	ENV_HAT_CLOSED
+	nB	RLEN
+	nB	RLEN
+	nB
+	nB	RLEN*4
+	nB	RLEN*4
+	nB
+	nRet
+.pt4b:
+	; 26
+	nB
+	nB	RLEN
+	nB	RLEN*7
+	nB	RLEN
+	nB	RLEN*3
+	nB
+	nRet
+.pt4c:
+	; 27
+	nB
+	nB
+	nRest
+	nB
+	nB
+	nB
+	nRest
+	nB
+	nRet
+
+.pt4d:
+	; 28
+	nB
+	nB	RLEN
+	nB	RLEN
+	nB	RLEN*4
+	nB	RLEN*4
+	nB	RLEN*4
+	nRet
+
+.pt4e:
+	; 30
+	nB
+	nB	RLEN
+	nB	RLEN*3
+	nB
+	nRest
+	nB	RLEN
+	nB	RLEN*3
+	nB
+	nRet
+
+.pt4f:
+	; 31
+	nB
+	nB
+	nRest
+	nB
+	nB
+	nB
+	nRest
+	nB
+	nRet
+
+.pt4g:
+	nB
+	nB	RLEN  ; TODO: this one is quieter
+	nB	RLEN
+	nB	RLEN*4
+	nB	RLEN*3
+	nB	RLEN*3
+	nB
+	nRet
 
 ; one measure of quarter note hat hits starting with an open hit
 .mel_crash:

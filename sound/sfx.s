@@ -12,12 +12,13 @@ INST_SQUARE   = 1
 INST_SQUARE_FASTDECAY = 2
 ENV_FASTDECAY = 3
 
-	nTrackHeader NEZ_PCMRATE_DEFAULT, 0, trklist, instlist
+	nTrackHeader 0, trklist, instlist
 
 trklist:
+	nTrackRelPtr snd_bounce
 	nTrackRelPtr snd_csdoor
-	nTrackRelPtr snd_psgshit  ; 0
-	nTrackRelPtr snd_bounce  ; 1
+	nTrackRelPtr snd_psgshit
+	nTrackRelPtr snd_psgshit2
 	nTrackListEnd
 
 instlist:
@@ -47,7 +48,7 @@ instlist:
 snd_csdoor:
 	nSfxCh	NVM_CHID_OPN0
 	nInst	INST_SQUARE_FASTDECAY
-	nLength	3
+	nLength	2
 	nVol	7Fh
 
 	nOct	2
@@ -77,30 +78,46 @@ snd_csdoor:
 	nStop
 
 snd_bounce:
-	nSfxCh	NVM_CHID_OPN0
+	nSfxCh	NVM_CHID_OPN4
 	nInst	INST_SAW
 	nLength	1
 	nOct	4
 	nC	1
-	nSwpDn	40h
-	nRest	6
-	nSwpUp	0C0h
-	nRest	6
+	nSwpDn	70h
+	nRest	5
+	nSwpUp	0E0h
+	nRest	5
 
 	nLpSet	10
 -:
-	nSwpUp	70h
-	nRest	3
-	nSwpDn	70h
-	nRest	3
+	nSwpUp	0D6h
+	nRest	1
+	nSwpDn	0E0h
+	nRest	1
 	nLpEnd	-
 
 	nOff
 	nStop
 
+snd_psgshit2:
+	nSfxCh	NVM_CHID_PSG0
+	nOct	3
+	nInst	ENV_FASTDECAY
+	nC
+	nD
+	nE
+	nF
+	nG
+	nF
+	nE
+	nD
+	nC
+	nOff
+	nStop
+
 snd_psgshit:
-	nSfxCh	NVM_CHID_PSGN
-	nNoise	0
+	nSfxCh	NVM_CHID_PSGNS
+	nNoise	4
 	nLength	32
 	nInst	ENV_FASTDECAY
 	nOct	2

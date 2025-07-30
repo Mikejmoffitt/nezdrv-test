@@ -13,7 +13,7 @@
 MAIN_VOL = 78h
 RLEN = NEZ_REST_LENGTH_DEFAULT
 
-	nTrackHeader NEZ_PCMRATE_DEFAULT, NEZ_TEMPO_DEFAULT, .track_list, .instruments_list
+	nTrackHeader NEZ_TEMPO_DEFAULT, .track_list, .instruments_list
 
 .track_list:
 	nTrackRelPtr track_sl_lead
@@ -53,41 +53,41 @@ track_sl_drum:
 .loop:
 	nLpSet 3
 -:
-	nPcmPlay PCM_KICK1
+	nPcmPlay PCM_CSKICK1
 	nRest
 	nRest
-	nPcmPlay PCM_KICK1
-	nPcmPlay PCM_SNARE1
+	nPcmPlay PCM_CSKICK1
+	nPcmPlay PCM_CSSNARE1
 	nRest
 
 	nRest
-	nPcmPlay PCM_KICK1
+	nPcmPlay PCM_CSKICK1
 	nRest
-	nPcmPlay PCM_KICK1
+	nPcmPlay PCM_CSKICK1
 	nRest
-	nPcmPlay PCM_KICK1
-	nPcmPlay PCM_SNARE1
+	nPcmPlay PCM_CSKICK1
+	nPcmPlay PCM_CSSNARE1
 	nRest
 	nRest
 	nRest
 	nLpEnd	-
 
-	nPcmPlay PCM_KICK1
+	nPcmPlay PCM_CSKICK1
 	nRest
 	nRest
-	nPcmPlay PCM_KICK1
-	nPcmPlay PCM_SNARE1
+	nPcmPlay PCM_CSKICK1
+	nPcmPlay PCM_CSSNARE1
 	nRest
 	nRest
-	nPcmPlay PCM_KICK1
-	nPcmPlay PCM_KICK1
-	nPcmPlay PCM_KICK1
-	nPcmPlay PCM_SNARE1
+	nPcmPlay PCM_CSKICK1
+	nPcmPlay PCM_CSKICK1
+	nPcmPlay PCM_CSKICK1
+	nPcmPlay PCM_CSSNARE1
 	nRest
-	nPcmPlay PCM_SNARE1
-	nPcmPlay PCM_SNARE1
-	nPcmPlay PCM_SNARE1
-	nPcmPlay PCM_SNARE1
+	nPcmPlay PCM_CSSNARE1
+	nPcmPlay PCM_CSSNARE1
+	nPcmPlay PCM_CSSNARE1
+	nPcmPlay PCM_CSSNARE1
 	nJump	.loop
 
 ;

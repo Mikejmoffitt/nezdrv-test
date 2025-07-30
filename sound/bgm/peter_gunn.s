@@ -12,7 +12,7 @@
 TEST_LENGTH = 6
 TEST_TIMER = 0C0h
 
-	nTrackHeader 0, TEST_TIMER, .track_list, .instruments_list
+	nTrackHeader TEST_TIMER, .track_list, .instruments_list
 
 .track_list:
 	nTrackRelPtr track_pg_bass
