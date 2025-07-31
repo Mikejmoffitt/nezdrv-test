@@ -2,7 +2,7 @@
 	dottedstructs	on
 	include	"../nezdrv/src/nvm_format.inc"
 	include	"../nezdrv/src/opn.inc"
-	include	"pcm/pcm.inc"
+	include	"pcm.inc"
 
 SFX_VOL = 7Fh
 RLEN = 12

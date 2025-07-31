@@ -19,7 +19,7 @@ OBJECTS_BGM := $(patsubst bgm/%.s,$(OUTDIR)/bgm/%.bin,$(SOURCES_BGM))
 SAMPLES_WAV := $(shell find wav/ -type f -name '*.wav')
 SAMPLES_PCM := $(patsubst wav/%.wav,$(OUTDIR)/pcm/%.bin,$(SAMPLES_WAV))
 
-PCM_RATE := 10650
+PCM_RATE := 8878
 PCM_VOL := 1.50
 
 FFMPEG_FLAGS := -ar $(PCM_RATE)

@@ -2,10 +2,10 @@
 	dottedstructs	on
 	include	"../../nezdrv/src/nvm_format.inc"
 	include	"../../nezdrv/src/opn.inc"
-	include	"pcm/pcm.inc"
+	include	"pcm.inc"
 
 
-MAIN_VOL = 74h
+MAIN_VOL = 7Bh
 ; typical rest value
 RLEN = 12
 ; stecatto hit
@@ -32,8 +32,8 @@ trk_list:
 	nTrackRelPtr trk_e
 	nTrackRelPtr trk_drums
 
-	nTrackRelPtr trk_unused; trk_g
-	nTrackRelPtr trk_unused; trk_h
+	nTrackRelPtr trk_g
+	nTrackRelPtr trk_h
 	nTrackRelPtr trk_unused
 	nTrackRelPtr trk_unused
 	nTrackListEnd
@@ -659,7 +659,10 @@ trk_e:
 
 
 
-
+kk   = PCM_SLKICK2
+sn   = PCM_SLSNARE2
+hc   = PCM_SLHATC1
+ho   = PCM_SLHATO1
 
 ;
 ; Drums
@@ -671,39 +674,39 @@ trk_drums:
 .loop:
 	nLpSet 3
 -:
-	nPcmPlay PCM_CSKICK1
+	nPcmPlay kk
 	nRest
-	nPcmPlay PCM_CSSNARE1
+	nPcmPlay sn
 	nRest
-	nPcmPlay PCM_CSKICK1
-	nPcmPlay PCM_CSKICK1
-	nPcmPlay PCM_CSSNARE1
-	nPcmPlay PCM_CSKICK1
+	nPcmPlay kk
+	nPcmPlay kk
+	nPcmPlay sn
+	nPcmPlay kk
 	nRest
-	nPcmPlay PCM_CSKICK1
-	nPcmPlay PCM_CSSNARE1
+	nPcmPlay kk
+	nPcmPlay sn
 	nRest
-	nPcmPlay PCM_CSKICK1
-	nPcmPlay PCM_CSKICK1
-	nPcmPlay PCM_CSSNARE1
+	nPcmPlay kk
+	nPcmPlay kk
+	nPcmPlay sn
 	nRest
 	nLpEnd	-
-	nPcmPlay PCM_CSKICK1
+	nPcmPlay kk
 	nRest
-	nPcmPlay PCM_CSSNARE1
+	nPcmPlay sn
 	nRest
-	nPcmPlay PCM_CSKICK1
-	nPcmPlay PCM_CSKICK1
-	nPcmPlay PCM_CSSNARE1
-	nPcmPlay PCM_CSKICK1
-	nPcmPlay PCM_CSKICK1
-	nPcmPlay PCM_CSSNARE1
-	nPcmPlay PCM_CSSNARE1
-	nPcmPlay PCM_CSKICK1
-	nPcmPlay PCM_CSSNARE1
-	nPcmPlay PCM_CSKICK1
-	nPcmPlay PCM_CSSNARE1
-	nPcmPlay PCM_CSSNARE1
+	nPcmPlay kk
+	nPcmPlay kk
+	nPcmPlay sn
+	nPcmPlay kk
+	nPcmPlay kk
+	nPcmPlay sn
+	nPcmPlay sn
+	nPcmPlay kk
+	nPcmPlay sn
+	nPcmPlay kk
+	nPcmPlay sn
+	nPcmPlay sn
 	nJump	.loop
 
 	nTrackFooter

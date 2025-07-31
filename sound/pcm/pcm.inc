@@ -1,3 +1,0 @@
-PCM_CSKICK1  = 0
-PCM_CSSNARE1 = 1
-

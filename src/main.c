@@ -102,6 +102,27 @@ static const uint8_t pcm_cssnare1[] =
 	#embed "wrk/sound/pcm/cssnare1.bin"
 };
 
+alignas(0x8000) static const uint8_t pcm_slkick2[] =
+{
+	#embed "wrk/sound/pcm/slkick2.bin"
+};
+
+static const uint8_t pcm_slsnare2[] =
+{
+	#embed "wrk/sound/pcm/slsnare2.bin"
+};
+
+static const uint8_t pcm_slhatc1[] =
+{
+	#embed "wrk/sound/pcm/slhatc1.bin"
+};
+
+static const uint8_t pcm_slhato1[] =
+{
+	#embed "wrk/sound/pcm/slhato1.bin"
+};
+
+
 
 //
 // Sound lists.
@@ -112,6 +133,10 @@ static const uint8_t * const pcm_list[] =
 {
 	pcm_cskick1,
 	pcm_cssnare1,
+	pcm_slkick2,
+	pcm_slsnare2,
+	pcm_slhatc1,
+	pcm_slhato1,
 	NULL
 };
 
@@ -125,8 +150,8 @@ typedef struct TrackListing
 
 static const TrackListing k_tracks[] =
 {
+	{bgm_dangus, "UNNAMED TEST TRACK", "MIKE MOFFITT"},
 	{bgm_labfight, "LABYRINTH FIGHT", "PIXEL"},
-	{bgm_dangus, "DANGUS", "MIKE MOFFITT"},
 	{bgm_straight_life, "STRAIGHT LIFE", "FREDDIE HUBBARD"},
 };
 

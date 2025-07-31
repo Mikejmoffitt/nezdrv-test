@@ -5,7 +5,7 @@
 	dottedstructs	on
 	include	"../../nezdrv/src/nvm_format.inc"
 	include	"../../nezdrv/src/opn.inc"
-	include	"pcm/pcm.inc"
+	include	"pcm.inc"
 
 MAIN_VOL = 77h
 PSG_VOL = 0Dh
