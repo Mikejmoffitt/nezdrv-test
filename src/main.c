@@ -236,7 +236,7 @@ void __attribute__((noreturn)) main(void)
 	const bool init_ok = nezdrv_init(sfx_data, pcm_list);
 	if (init_ok)
 	{
-		draw_status_text("NEZDRV DEMO");
+		draw_status_text("NEZDRV DEMO (HICLOCK VER)");
 		draw_guide_text();
 	}
 	else
@@ -265,6 +265,16 @@ void __attribute__((noreturn)) main(void)
 			else track_id--;
 			play_track(track_id);
 		}
+
+		/*
+		if (g_sai_in[0].pos & SAI_BTN_DOWN)
+		{
+			sai_vdp_debug_set(0x01, 0);
+		}
+		if (g_sai_in[0].pos & SAI_BTN_UP)
+		{
+			sai_vdp_debug_set(0x01, VDP_DBG01_Z80CK);
+		}*/
 
 		/*
 		if (g_sai_in[0].pos & SAI_BTN_DOWN)
