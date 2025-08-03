@@ -1151,11 +1151,15 @@ trk_mel3:
 	nA
 	; Melody A (7-22)
 	nCall	.pt3a    ; 7-9
+	nOctDn
 	nCall	.pt1a    ; 10
+	nOctUp
 	nCall	.pt3b    ; 11-12
 	nCall	.pt3c    ; 13-14
 	nCall	.pt3a    ; 15-17
+	nOctDn
 	nCall	.pt1a    ; 18
+	nOctUp
 	nCall	.pt3b    ; 19-20
 	nCall	.pt3d    ; 21-22
 	; Transition 2 (23-24)

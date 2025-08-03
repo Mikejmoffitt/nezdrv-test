@@ -224,6 +224,7 @@ static void play_track(uint16_t id)
 void __attribute__((noreturn)) main(void)
 {
 	sai_init();
+	sai_vdp_debug_set(0x01, VDP_DBG01_Z80CK);
 	// CHR load
 	dvram_reset();
 	s_font_vram = dvram_alloc(BG_FONT_CHR_WORDS);
@@ -236,7 +237,7 @@ void __attribute__((noreturn)) main(void)
 	const bool init_ok = nezdrv_init(sfx_data, pcm_list);
 	if (init_ok)
 	{
-		draw_status_text("NEZDRV DEMO (HICLOCK VER)");
+		draw_status_text("NEZDRV DEMO");
 		draw_guide_text();
 	}
 	else
