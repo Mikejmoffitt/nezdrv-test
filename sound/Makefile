@@ -61,7 +61,7 @@ $(OUTDIR)/bgm/%.bin: bgm/%.s
 	$(AS) $< $(ASFLAGS) -o $(WRKDIR)/$@
 	$(P2BIN) $(WRKDIR)/$@ $@
 
-$(OUTDIR)/pcm/%.bin: wav/%.wav
+$(OUTDIR)/pcm/%.bin: wav/%.wav $(NEZPCM)
 	mkdir -p $(@D)
 	mkdir -p $(WRKDIR)/$(@D)
 	ffmpeg -i $< $(FFMPEG_FLAGS) $@
