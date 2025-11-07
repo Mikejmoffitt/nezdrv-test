@@ -4,60 +4,7 @@
 #include "res.h"
 #include "nezdrv/nezdrv.h"
 
-//
-// Playing around with H-int scheduled palette changes
-//
-
-typedef struct HChartEntry
-{
-	int16_t lines;
-	uint16_t idx;
-	uint16_t color;
-	uint16_t pad;
-} HChartEntry;
-
-static const HChartEntry hirq_chart[] =
-{
-	{ 0, 0, 0},
-	{ 8-1, SAI_PAL333(7, 0, 0), SAI_PAL333(3, 0, 0)},
-	{ 8-1, SAI_PAL333(0, 7, 0), SAI_PAL333(0, 3, 0) },
-	{ 8-1, SAI_PAL333(0, 0, 7), SAI_PAL333(0, 0, 3) },
-	{ 8-1, SAI_PAL333(7, 7, 0), SAI_PAL333(0, 4, 4) },
-	{ 8-1, SAI_PAL333(0, 0, 0), SAI_PAL333(1, 2, 2) },
-	{-1, 0, 0},
-};
-
-static const HChartEntry *s_entry_ptr;
-
-static void hirq_chart_callback(void)
-{
-	asm __volatile__ (
-		"lea	(0xC00008+1).l, %%a0;"
-		"read:cmpi.b	#240/2, (%%a0);"
-		"bcs.b	read;"
-		: : : "a0"
-	);
-	sai_vdp_set_autoinc(2);
-	sai_vdp_set_addr_cramw(0);
-	sai_vdp_write_word(s_entry_ptr->color);
-	s_entry_ptr++;
-	if (s_entry_ptr->lines < 0) sai_vdp_set_hint_en(false);
-	else sai_vdp_set_hint_line(s_entry_ptr->lines);
-}
-
-static void hirq_chart_reset(void)
-{
-	s_entry_ptr = hirq_chart;
-	sai_vdp_set_hint_line(0);
-	sai_vdp_set_hint_en(true);
-}
-
-static void hirq_chart_init(void)
-{
-	g_irq_hbl_callback = hirq_chart_callback;
-	hirq_chart_reset();
-	sai_vdp_set_hint_en(true);
-}
+// #define WANT_Z80_OVERCLOCK
 
 // In a "real program" it'd be better to put this data in its own file, with
 // alignment of 0x8000 for the data.
@@ -67,12 +14,13 @@ static void hirq_chart_init(void)
 //
 
 // SFX
-alignas(0x8000) static const uint8_t sfx_data[] =
+/*alignas(0x8000) static const uint8_t sfx_data[] =
 {
 	#embed "wrk/sound/sfx.bin"
-};
+};*/
 
 // BGM
+/*
 static const uint8_t bgm_labfight[] =
 {
 	#embed "wrk/sound/bgm/labfight.bin"
@@ -87,6 +35,21 @@ static const uint8_t bgm_straight_life[] =
 {
 	#embed "wrk/sound/bgm/straight_life.bin"
 };
+
+static const uint8_t bgm_asdf[] =
+{
+	#embed "wrk/sound/bgm/asdf.bin"
+};*/
+
+static const uint8_t bgm_test[] =
+{
+	#embed "wrk/sound/bgm/test.bin"
+};
+
+//static const uint8_t bgm_tatsujin_oh_bgm6[] =
+//{
+//	#embed "wrk/sound/bgm/tatsujin_oh_bgm6.bin"
+//};
 
 //
 // PCM Data.
@@ -131,12 +94,12 @@ static const uint8_t pcm_slhato1[] =
 // PCM Samples
 static const uint8_t * const pcm_list[] =
 {
-	pcm_cskick1,
-	pcm_cssnare1,
 	pcm_slkick2,
 	pcm_slsnare2,
 	pcm_slhatc1,
 	pcm_slhato1,
+	pcm_cskick1,
+	pcm_cssnare1,
 	NULL
 };
 
@@ -150,9 +113,11 @@ typedef struct TrackListing
 
 static const TrackListing k_tracks[] =
 {
-	{bgm_dangus, "UNNAMED TEST TRACK", "MIKE MOFFITT"},
-	{bgm_labfight, "LABYRINTH FIGHT", "PIXEL"},
-	{bgm_straight_life, "STRAIGHT LIFE", "FREDDIE HUBBARD"},
+	{bgm_test, "MML TEST", "MIKE MOFFITT"},
+//	{bgm_asdf, "ASDF", "MIKE MOFFITT"},
+//	{bgm_dangus, "UNNAMED TEST TRACK", "MIKE MOFFITT"},
+//	{bgm_labfight, "LABYRINTH FIGHT", "PIXEL"},
+//	{bgm_straight_life, "STRAIGHT LIFE", "FREDDIE HUBBARD"},
 };
 
 #define TRACK_COUNT (sizeof(k_tracks)/sizeof(k_tracks[0]))
@@ -224,7 +189,10 @@ static void play_track(uint16_t id)
 void __attribute__((noreturn)) main(void)
 {
 	sai_init();
-	sai_vdp_debug_set(0x01, VDP_DBG01_Z80CK);
+#ifdef WANT_Z80_OVERCLOCK
+	sai_vdp_debug_set(0x00, VDP_DBG01_Z80CK);
+#endif  // WANT_Z80_OVERCLOCK
+
 	// CHR load
 	dvram_reset();
 	s_font_vram = dvram_alloc(BG_FONT_CHR_WORDS);
@@ -233,8 +201,10 @@ void __attribute__((noreturn)) main(void)
 	                          BG_FONT_CHR_WORDS, 2);
 	sai_pal_load(PAL_FONT, vel_get_wrk_gfx_pal(BG_FONT), 1);
 	sai_finish();
+
+	// NEZDRV init
 	draw_status_text("INIT...");
-	const bool init_ok = nezdrv_init(sfx_data, pcm_list);
+	const bool init_ok = nezdrv_init(NULL, pcm_list);
 	if (init_ok)
 	{
 		draw_status_text("NEZDRV DEMO");
@@ -245,11 +215,9 @@ void __attribute__((noreturn)) main(void)
 		draw_status_text("INIT NG!");
 	}
 
+	// Interface
 	uint16_t track_id = 0;
-	uint16_t sfx_ch_id = 0;
 	uint16_t sfx_trk_id = 0;
-
-//	hirq_chart_init();
 
 	play_track(track_id);
 	while (true)
@@ -266,18 +234,8 @@ void __attribute__((noreturn)) main(void)
 			else track_id--;
 			play_track(track_id);
 		}
-
-		/*
-		if (g_sai_in[0].pos & SAI_BTN_DOWN)
-		{
-			sai_vdp_debug_set(0x01, 0);
-		}
-		if (g_sai_in[0].pos & SAI_BTN_UP)
-		{
-			sai_vdp_debug_set(0x01, VDP_DBG01_Z80CK);
-		}*/
-
-		/*
+		
+		// sfx triggers
 		if (g_sai_in[0].pos & SAI_BTN_DOWN)
 		{
 			sfx_trk_id++;
@@ -288,14 +246,10 @@ void __attribute__((noreturn)) main(void)
 		}
 		if (g_sai_in[0].pos & SAI_BTN_C)
 		{
-			nezdrv_play_sfx(sfx_ch_id, sfx_trk_id);
+			nezdrv_play_sfx(0, sfx_trk_id);
 		}
-		sfx_ch_id++;*/
-		if (sfx_ch_id > 2) sfx_ch_id = 0;
 
 		nezdrv_update();
-//		sai_irq_vbl_wait();
-//		hirq_chart_reset();
 		sai_finish();
 	}
 }

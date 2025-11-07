@@ -1,0 +1,301 @@
+;
+; "Live in Future" Masahiro Yuge
+;
+
+	cpu		Z80
+	dottedstructs	on
+	include	"../../nezdrv/src/nvm_format.inc"
+	include	"../../nezdrv/src/opn.inc"
+	include	"pcm.inc"
+
+MAIN_VOL = 7Fh
+; typical rest value
+RLEN = 12
+; stecatto hit
+RSTEC = RLEN/4
+; rest following stecatto
+RSTECOFF = RSTEC*3
+
+TEMPO = 0CCh
+
+INST_BASS1 = 0
+INST_GUITAR1 = 1
+
+	nTrackHeader TEMPO, trk_list, instruments_list
+
+trk_list:
+	nTrackRelPtr trk_a
+	nTrackRelPtr trk_unused
+	nTrackRelPtr trk_unused
+	nTrackRelPtr trk_unused
+	nTrackRelPtr trk_unused
+	nTrackRelPtr trk_unused
+
+	nTrackRelPtr trk_unused
+	nTrackRelPtr trk_unused
+	nTrackRelPtr trk_unused
+	nTrackRelPtr trk_unused
+	nTrackListEnd
+
+trk_unused:
+	nStop
+
+instruments_list:
+	nTrackRelPtr .inst_bass1
+	nTrackRelPtr .inst_guitar1
+	nTrackListEnd
+
+.inst_bass1:
+	include	"inst/bass1.s"
+.inst_guitar1:
+	include	"inst/guitar1.s"
+.inst_bass2:
+	include	"inst/bass2.s"
+
+trk_a:
+	nInst	INST_GUITAR1
+	nVol	7Fh
+	nLength	RLEN
+	nLfo	6
+.loop:
+	nOct	5
+
+	nLpSet	2
+-:
+	nF	
+	nOff	RLEN*2
+
+	nPms	6
+	nE	RLEN*5
+	nOff
+
+	nPms	0
+	nF
+	nOff	RLEN*2
+
+	nPms	6
+	nE	RLEN*4
+
+	nPms	0
+	nF	
+	nOff	RLEN*2
+
+	nPms	6
+	nE	RLEN*5
+	nOff
+
+	nPms	0
+	nDs
+	nOff	RLEN*2
+
+	nPms	6
+	nF	RLEN*4
+	nPms	0
+
+	nLpEnd	-
+	nJump	.loop
+
+trk_b:
+	nInst	INST_GUITAR1
+	nVol	7Fh
+	nLength	RLEN
+.loop:
+	nOct	5
+
+	nLpSet	2
+-:
+	nD	
+	nOff	RLEN*2
+	nC	RLEN*5
+	nOff
+	nD
+	nOff	RLEN*2
+	nC	RLEN*4
+
+	nD	
+	nOff	RLEN*2
+	nC	RLEN*5
+	nOff
+	nC
+	nOff	RLEN*2
+	nD	RLEN*4
+	nLpEnd	-
+	nJump	.loop
+
+trk_c:
+	nInst	INST_GUITAR1
+	nVol	7Fh
+	nLength	RLEN
+.loop:
+	nOct	5
+	nOctDn
+
+	nLpSet	2
+-:
+	nAs	
+	nOff	RLEN*2
+	nG	RLEN*5
+	nOff
+	nAs
+	nOff	RLEN*2
+	nG	RLEN*4
+
+	nAs	
+	nOff	RLEN*2
+	nG	RLEN*5
+	nOff
+	nGs
+	nOff	RLEN*2
+	nAs	RLEN*4
+	nLpEnd	-
+	nJump	.loop
+
+trk_d:
+	nInst	INST_BASS1
+	nVol	7Fh
+	nLength	RLEN
+.loop:
+	nOct	3
+	nLpSet	2
+-:
+	nC
+	nC
+	nOctUp
+	nC
+	nOctDn
+	nC
+	nOff
+	nC
+	nOctUp
+	nC
+	nOctDn
+	nC
+	nLpEnd	-
+	nJump	.loop
+
+kk   = PCM_SLKICK2
+sn   = PCM_SLSNARE2
+hc   = PCM_SLHATC1
+ho   = PCM_SLHATO1
+
+;
+; Drums
+;
+trk_drums:
+	nVol	7Fh
+	nPcmMode 1
+	nLength RLEN
+.loop:
+	nLpSet 3
+-:
+	nPcmPlay kk
+	nPcmPlay kk
+	nPcmPlay sn
+	nPcmPlay kk
+	nPcmPlay kk
+	nPcmPlay kk
+	nPcmPlay sn
+	nPcmPlay kk
+	nRest
+	nPcmPlay kk
+	nPcmPlay sn
+	nRest
+	nPcmPlay kk
+	nPcmPlay kk
+	nPcmPlay sn
+	nPcmPlay kk
+	nLpEnd	-
+	nJump	.loop
+
+
+;
+; Drums
+;
+trk_drums:
+	nVol	7Fh
+	nPcmMode 1
+	nLength	RLEN
+	nOctave	2
+.top:
+	nLpSet	10
+-:  ; 0~8
+	nCall	.rou1
+	nLpEnd	-
+
+	nLpSet	16  ; 9~24
+-:
+	nCall	.rou2
+	nLpEnd	-
+
+	nLpSet	8  ; 25~32
+-:
+	nCall	.rou1
+	nLpEnd	-
+
+	nLpSet	3  ; 33~40
+-:
+	nCall	.rou3
+	nLpEnd	-
+
+
+
+
+	SnVol 1
+	SnLoop1 2	; 33~40
+BGM681:
+	SnRptS 3
+	.word	PC_, BD1, PO_, PC_, SE1, PC, BEAT*2, BD1
+	.word	PO_, PC, BEAT*2, SE1
+	SnRptE
+	.word	PC_, BD1, PO_, PC_, SE1, PC, BEAT*2, BD1
+	.word	PC_, SE1, PO_, PO_
+	SnJumpNZ BGM681
+	SnRvol
+	SnRptS 4	; 41~44
+	.word	PC_, BD1, PO_, PC_, SD1, PC, BEAT*2, BD1
+	.word	PO_, PC_, SD1, PC_, BD1
+	SnRptE
+	SnRptS 3	; 45~48
+	.word	PC_, BD1, PO_, PC_, T1, PC, BEAT*2, BD1
+	.word	PO_, PC_, T1, PC_, BD1
+	SnRptE
+	.word	PC_, BD1, PO_, PC_, T1, PC, BEAT*2, BD1
+	.word	PC_, SD1, PO_, PO_
+	SnJump BGM68A
+
+.rou1:
+	nPcmPlay kk
+	nPcmPlay kk
+	nPcmPlay sn
+	nPcmPlay kk
+	nRest
+	nPcmPlay kk
+	nPcmPlay sn
+	nRest
+	nRet
+
+.rou2:
+	nPcmPlay kk
+	nPcmPlay kk
+	nPcmPlay sn
+	nPcmPlay kk
+	nRest
+	nPcmPlay kk
+	nPcmPlay sn
+	nPcmPlay kk
+	nRet
+
+.rou3:
+	nPcmPlay kk
+	nPcmPlay kk
+	nPcmPlay hc
+	nPcmPlay kk
+	nRest
+	nPcmPlay kk
+	nPcmPlay hc
+	nRest
+	nRet
+
+
+
+	nTrackFooter

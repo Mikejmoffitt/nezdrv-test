@@ -1,0 +1,110 @@
+
+; ==============================================================================
+;
+; Meta
+;
+; ==============================================================================
+
+#platform md
+#ticks 96
+#speed 240
+
+; ==============================================================================
+;
+; Track pointers
+;
+; ==============================================================================
+
+#track opn0 trk_fm0
+#track opn1 trk_fm1
+#track opn2 trk_fm2
+;#track opn3 trk_fm3
+;#track opn4 trk_fm4
+#track opn5 trk_pcm
+;#track psg0 trk_psg0
+;#track psg1 trk_psg1
+;#track psg2 trk_psg2
+#track psg3 trk_noise
+
+; ==============================================================================
+;
+; Instruments
+;
+; ==============================================================================
+
+#instrument 0 opn "inst/asoldier/bass1.tfi"
+#instrument 1 opn "inst/asoldier/synth1.tfi"
+
+#instrument 2 opn "inst/sonic/bass6.tfi"
+
+; hihat closed
+#instrument 3 psg
+15 15 15 14 14 13 13 12 12 11 10 9 8 [7] 6 5 4 3 2 1 0 .
+
+; hihat open
+#instrument 4 psg
+15 15 14 13 12 11 11 11 11 11 10 10 10 10 10 [ 9 ] 8 6 4 2 0 .
+
+; ==============================================================================
+;
+; Track Data
+;
+; ==============================================================================
+
+; Arrangement top
+trk_fm0:
+	inst 0
+	length 4
+trk_fm0_top:
+	call fm0_pt1
+	jump trk_fm0_top
+
+fm0_pt1:
+	oct 3
+	"[3 c1 < g^2 a# r a#g2 f2 g2 >]"
+	"f2f2f2f2fd#fgfd#c<b->"
+	ret
+
+trk_fm1:
+	inst 1
+	length 4
+	"p10"
+trk_fm1_top:
+	oct 5
+	"[4 fcfg"
+	"a#"
+	"gf<a#>]"
+	jump trk_fm1_top
+
+trk_fm2:
+	inst 1
+	length 8
+	"r3"
+	length 4
+	"p01"
+	"v117"
+	jump trk_fm1_top
+
+
+;
+; Drums (PCM)
+;
+trk_pcm:
+	pcm 1
+	length 4
+pcm_loop:
+	"x0^1" "x1^4 ^2 x0^4" "r4 x0^4 r4 x0^4" "x1^1"
+
+	jump pcm_loop
+
+;
+; Drums (Noise)
+;
+trk_noise:
+	noise 7
+	length 4
+	oct 7
+noise_loop:
+	"@3cc" "@4c2"
+	
+	jump noise_loop
