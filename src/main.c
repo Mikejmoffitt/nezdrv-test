@@ -4,7 +4,7 @@
 #include "res.h"
 #include "nezdrv/nezdrv.h"
 
-// #define WANT_Z80_OVERCLOCK
+#define WANT_Z80_OVERCLOCK
 
 // In a "real program" it'd be better to put this data in its own file, with
 // alignment of 0x8000 for the data.
@@ -21,6 +21,17 @@
 
 // BGM
 /*
+static const uint8_t bgm_asdf[] =
+{
+	#embed "wrk/sound/bgm/asdf.bin"
+};
+
+static const uint8_t bgm_straight_life[] =
+{
+	#embed "wrk/sound/bgm/straight_life.bin"
+};
+*/
+
 static const uint8_t bgm_labfight[] =
 {
 	#embed "wrk/sound/bgm/labfight.bin"
@@ -30,16 +41,6 @@ static const uint8_t bgm_dangus[] =
 {
 	#embed "wrk/sound/bgm/dangus.bin"
 };
-
-static const uint8_t bgm_straight_life[] =
-{
-	#embed "wrk/sound/bgm/straight_life.bin"
-};
-
-static const uint8_t bgm_asdf[] =
-{
-	#embed "wrk/sound/bgm/asdf.bin"
-};*/
 
 static const uint8_t bgm_test[] =
 {
@@ -65,7 +66,7 @@ static const uint8_t pcm_cssnare1[] =
 	#embed "wrk/sound/pcm/cssnare1.bin"
 };
 
-alignas(0x8000) static const uint8_t pcm_slkick2[] =
+static const uint8_t pcm_slkick2[] =
 {
 	#embed "wrk/sound/pcm/slkick2.bin"
 };
@@ -84,8 +85,6 @@ static const uint8_t pcm_slhato1[] =
 {
 	#embed "wrk/sound/pcm/slhato1.bin"
 };
-
-
 
 //
 // Sound lists.
@@ -115,8 +114,8 @@ static const TrackListing k_tracks[] =
 {
 	{bgm_test, "MML TEST", "MIKE MOFFITT"},
 //	{bgm_asdf, "ASDF", "MIKE MOFFITT"},
-//	{bgm_dangus, "UNNAMED TEST TRACK", "MIKE MOFFITT"},
-//	{bgm_labfight, "LABYRINTH FIGHT", "PIXEL"},
+	{bgm_dangus, "UNNAMED TEST TRACK", "MIKE MOFFITT"},
+	{bgm_labfight, "LABYRINTH FIGHT", "PIXEL"},
 //	{bgm_straight_life, "STRAIGHT LIFE", "FREDDIE HUBBARD"},
 };
 
@@ -189,9 +188,6 @@ static void play_track(uint16_t id)
 void __attribute__((noreturn)) main(void)
 {
 	sai_init();
-#ifdef WANT_Z80_OVERCLOCK
-	sai_vdp_debug_set(0x00, VDP_DBG01_Z80CK);
-#endif  // WANT_Z80_OVERCLOCK
 
 	// CHR load
 	dvram_reset();
@@ -218,8 +214,14 @@ void __attribute__((noreturn)) main(void)
 	// Interface
 	uint16_t track_id = 0;
 	uint16_t sfx_trk_id = 0;
+#ifdef WANT_Z80_OVERCLOCK
+	sai_vdp_debug_set(0x00, VDP_DBG01_Z80CK);
+#endif  // WANT_Z80_OVERCLOCK
 
 	play_track(track_id);
+#ifdef WANT_Z80_OVERCLOCK
+	sai_vdp_debug_set(0x00, VDP_DBG01_Z80CK);
+#endif  // WANT_Z80_OVERCLOCK
 	while (true)
 	{
 		if (g_sai_in[0].pos & SAI_BTN_RIGHT)

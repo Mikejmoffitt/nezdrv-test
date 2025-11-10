@@ -15,16 +15,16 @@
 ;
 ; ==============================================================================
 
-#track opn0 trk_fm0
-#track opn1 trk_fm1
-#track opn2 trk_fm2
+#track opn0 trk_a_bass
+#track opn1 trk_b_main_1
+#track opn2 trk_c_main_2
 ;#track opn3 trk_fm3
 ;#track opn4 trk_fm4
-#track opn5 trk_pcm
+#track opn5 trk_f_drums
 ;#track psg0 trk_psg0
 ;#track psg1 trk_psg1
 ;#track psg2 trk_psg2
-#track psg3 trk_noise
+#track psg3 trk_j_perc
 
 ; ==============================================================================
 ;
@@ -52,12 +52,12 @@
 ; ==============================================================================
 
 ; Arrangement top
-trk_fm0:
+trk_a_bass:
 	inst 0
 	length 4
-trk_fm0_top:
+trk_a_bass_top:
 	call fm0_pt1
-	jump trk_fm0_top
+	jump trk_a_bass_top
 
 fm0_pt1:
 	oct 3
@@ -65,31 +65,31 @@ fm0_pt1:
 	"f2f2f2f2fd#fgfd#c<b->"
 	ret
 
-trk_fm1:
+trk_b_main_1:
 	inst 1
 	length 4
 	"p10"
-trk_fm1_top:
+trk_b_main_1_top:
 	oct 5
 	"[4 fcfg"
 	"a#"
 	"gf<a#>]"
-	jump trk_fm1_top
+	jump trk_b_main_1_top
 
-trk_fm2:
+trk_c_main_2:
 	inst 1
 	length 8
 	"r3"
 	length 4
 	"p01"
 	"v117"
-	jump trk_fm1_top
+	jump trk_b_main_1_top
 
 
 ;
 ; Drums (PCM)
 ;
-trk_pcm:
+trk_f_drums:
 	pcm 1
 	length 4
 pcm_loop:
@@ -100,7 +100,7 @@ pcm_loop:
 ;
 ; Drums (Noise)
 ;
-trk_noise:
+trk_j_perc:
 	noise 7
 	length 4
 	oct 7
