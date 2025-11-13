@@ -9,6 +9,7 @@ RESDIR := res
 OBJDIR := $(WRKDIR)/obj
 SAIOBJDIR := $(WRKDIR)/saiobj
 OUTDIR := out
+NEZDRVDIR := nezdrv
 
 PROJECT_OUTPUT := $(OUTDIR)/$(PROJECT_NAME).bin
 
@@ -50,7 +51,7 @@ all: $(PROJECT_OUTPUT)
 clean:
 	rm -rf $(OUTDIR) $(OBJDIR) $(SAIOBJDIR) $(WRKDIR)
 	make -C sound clean
-	make -C nezdrv clean
+	make -C $(NEZDRVDIR) clean
 
 # Prebuild should depend on any targets that are required before compilation.
 .PHONY: prebuild
@@ -72,13 +73,13 @@ $(WRKDIR)/gfx.chr: png/gfx.ini $(VELELLA)
 
 # The driver.
 .PHONY: $(WRKDIR)/sound/nezdrv.bin
-$(WRKDIR)/sound/nezdrv.bin: nezdrv/out/nezdrv.bin
+$(WRKDIR)/sound/nezdrv.bin: $(NEZDRVDIR)/out/nezdrv.bin
 	mkdir -p $(@D)
 	cp $< $@
 
-.PHONY: nezdrv/out/nezdrv.bin
-nezdrv/out/nezdrv.bin:
-	make -C nezdrv/
+.PHONY: $(NEZDRVDIR)/out/nezdrv.bin
+$(NEZDRVDIR)/out/nezdrv.bin:
+	make -C $(NEZDRVDIR)/
 
 # The BGM and SFX data.
 .PHONY: $(WRKDIR)/sound/conversion

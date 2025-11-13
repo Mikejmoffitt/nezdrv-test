@@ -2,7 +2,7 @@
 #include <stddef.h>
 #include "dvram.h"
 #include "res.h"
-#include "nezdrv/nezdrv.h"
+#include "nezdrv/api/nezdrv.h"
 
 #define WANT_Z80_OVERCLOCK
 
@@ -248,7 +248,7 @@ void __attribute__((noreturn)) main(void)
 		}
 		if (g_sai_in[0].pos & SAI_BTN_C)
 		{
-			nezdrv_play_sfx(0, sfx_trk_id);
+			nezdrv_play_sfx(sfx_trk_id);
 		}
 
 		nezdrv_update();

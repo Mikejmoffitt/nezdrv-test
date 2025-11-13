@@ -17,11 +17,11 @@
 
 #track opn0 trk_bass
 #track opn1 trk_mel0
-;#track opn2 trk_mel1
-;#track opn3 trk_mel2
-;#track opn4 trk_mel3
-;#track opn5 trg_drum_pcm
-;#track psg3 trk_drum_psg
+#track opn2 trk_mel1
+#track opn3 trk_mel2
+#track opn4 trk_mel3
+#track opn5 trk_drum_pcm
+#track psg3 trk_drum_psg
 
 ; ==============================================================================
 ;
@@ -34,9 +34,9 @@
 #instrument 2 opn "inst/cavestory/cssaw1.dmp"
 #instrument 3 opn "inst/cavestory/csorgan1.dmp"
 #instrument 4 psg
-15 13 11 8 7 6 5 4 3 2 1 0 .
+15 14 14 13 13 12 12 11 11 10 [ 9 ] 0 .
 #instrument 5 psg
-15 14 13 12 12 11 11 11 10 10 10 10 10 [ 9 ] 8 6 4 2 0 .
+15 12 8 4 .
 
 ; ==============================================================================
 ;
@@ -49,18 +49,48 @@
 ; Melody 0 (org channel 3)
 ;
 ; ------------------------------------------------------------------------------
-trk_mel0:
+
+mel_init_sub:
+	transpose 0
 	inst 2
 	length 8
 	oct 4
-trk_mel0_top:
+	ret
+
+trk_mel0:
+	call mel_init_sub
 	; Introduction 0-3, 0-4
+	call mel0_pt1_sub
+	; Transition A 5-6
+	call mel0_pt1c
+	; Melody A
+	"[8 r1]"  ; 7-14 silence
+	call mel0_pt1_sub
+	; Transition B 23-24
+	"[2 r1]"  ; silence
+	; Melody B 25-40
+	loopset 3
+	call mel0_pt4a  ; 25, 29, 33
+	call mel0_pt4b  ; 26, 30, 34
+	transpose -3
+	call mel0_pt4a  ; 27, 31, 35
+	transpose 0
+	call mel0_pt1b  ; 28, 32, 36
+	loopend
+	call mel0_pt4a  ; 37
+	call mel0_pt4b  ; 38
+	transpose -3
+	call mel0_pt4a  ; 39
+	transpose 0
+	call mel0_pt4c  ; 40
+	jump trk_mel0
+
+mel0_pt1_sub:
 	loopset 4
 	call mel0_pt1a  ; 0, 2
 	call mel0_pt1b  ; 1, 3, 4
 	loopend
-
-	jump trk_mel0_top
+	ret
 
 mel0_pt1a:
 	"d v121^v127 r4"
@@ -68,7 +98,266 @@ mel0_pt1a:
 	ret
 
 mel0_pt1b:
-	"f16r16 f16 v121^v127 [2 e v121^v127] r"
+	"f16r16 f v121^v127 [2 e v121^v127] r"
+	ret
+
+mel0_pt1c:
+	"[4 d v121^v127]"
+	"d16 v121^16v127 [3 d v121^v127] d"
+	ret
+
+mel0_pt4a:
+	"f v121^v127 r4"
+	"f16r16 f v121^v127 r"
+	ret
+
+mel0_pt4b:
+	"e16r16 e v121^v127 [2 d v121^v127] r"
+	ret
+
+mel0_pt4c:
+	"f16 v121 ^16 v127 f v121^16 r16 v127"
+	"[2 g v121^v127] r"
+	ret
+
+; ------------------------------------------------------------------------------
+;
+; Melody 1 (org channel 4)
+;
+; ------------------------------------------------------------------------------
+trk_mel1:
+	call mel_init_sub
+	; Introduction 0-3, 0-4
+	call mel1_pt1_sub
+	; Transition A 5-6
+	call mel1_pt1c
+	; Melody A 7-14
+	"[8 r1]"  ; 7-14 silence
+	call mel1_pt1_sub
+	; Transition B 23-24
+	"[2 r1]"  ; silence
+	; Melody B 25-40
+	loopset 3
+	transpose -3
+	call mel0_pt4a  ; 25, 29, 33
+	transpose 0
+	call mel1_pt4b  ; 26, 30, 34
+	transpose -7
+	call mel0_pt4a  ; 27, 31, 35
+	transpose 0
+	call mel1_pt1b  ; 28, 32, 36
+	loopend
+	transpose -3
+	call mel0_pt4a  ; 37
+	transpose 0
+	call mel1_pt4b  ; 38
+	transpose -7
+	call mel0_pt4a  ; 39
+	transpose 0
+	call mel1_pt4c  ; 40
+	jump trk_mel1
+
+mel1_pt1_sub:
+	loopset 4
+	transpose -3
+	call mel0_pt1a  ; 0, 2
+	transpose 0
+	call mel1_pt1b  ; 1, 3, 4
+	loopend
+	ret
+
+mel1_pt1b:
+	"d16r16 d v121^v127 [2 c v121^v127] r"
+	ret
+
+mel1_pt1c:
+	"<[4 b v121 ^ v127]"
+	"b v121 ^ v127"
+	"b- v121 ^ v127"
+	"a v121 ^ v127"
+	"g v121 ^ v127"
+	">"
+	ret
+
+mel1_pt4b:
+	"c16r16 c v121^v127 < [2 a# v121^v127] r >"
+	ret
+
+mel1_pt4c:
+	"d16 v121^16 v127 d v121^16 r16 v127"
+	"[2 d v121^v127] r"
+	ret
+
+; ------------------------------------------------------------------------------
+;
+; Melody 2 (org channel 5)
+;
+; ------------------------------------------------------------------------------
+trk_mel2:
+	call mel_init_sub
+	; Introduction 0-3, 0-4
+	call mel2_pt1_sub
+	; Transition A 5-6
+	"[4 b v121 ^ v127]"
+	"[2 >g<g] > g g16 v121 ^16 v127 f# f<"
+	; Melody A 7-14
+	length 16
+	oct 3
+	"gr >drgr <gr [3 r8 gr>gr<gr]"
+	"r8 gr >fr <g8 v121^8v127 gr>fr<f8"
+	"gr >frgr <gr r8 fr>gr<gr"
+	"[2 r8 gr>gr<gr]"
+	"r8 gr>gr<gr r8 g8f8gr"
+	length 8
+	">[2 d v121^v127]"
+	"d16 v121^16 v127 d v121^v127 d"
+	"^rr4r2 <"
+	; From here it's more or less like Introduction, but the last bits differ
+	transpose 5
+	call mel0_pt1a  ; 0, 2
+	transpose 0
+	call mel2_pt1b  ; 1, 3, 4
+	transpose 5
+	call mel0_pt1a  ; 0, 2
+	transpose 0
+	call mel2_pt1c_alt  ; 1, 3, 4
+
+	transpose 5
+	call mel0_pt1a  ; 0, 2
+	transpose 0
+	call mel2_pt1b  ; 1, 3, 4
+	transpose 5
+	call mel0_pt1a  ; 0, 2
+	transpose 0
+	call mel2_pt1c_second  ; 1, 3, 4
+	; Transition B 23-24
+	">[4 d<g>] f<g>f<g>ffed<"
+
+	; Melody B 25-40
+
+	loopset 3
+	transpose 18
+	call mel0_pt4a  ; 25, 29, 33
+	transpose 0
+	call mel2_pt4b  ; 26, 30, 34
+	transpose 14
+	call mel0_pt4a  ; 27, 31, 35
+	transpose 0
+	call mel2_pt1b  ; 28, 32, 36
+	loopend
+
+	transpose 18
+	call mel0_pt4a  ; 37
+	transpose 0
+	call mel2_pt4b  ; 38
+	transpose 14
+	call mel0_pt4a  ; 39
+	transpose 0
+	oct 4
+	call mel2_pt4c  ; 40
+
+	jump trk_mel2
+
+mel2_pt1_sub:
+	transpose 5
+	call mel0_pt1a  ; 0, 2
+	transpose 0
+	call mel2_pt1b  ; 1, 3, 4
+	transpose 5
+	call mel0_pt1a  ; 0, 2
+	transpose 0
+	call mel2_pt1c_first  ; 1, 3, 4
+
+	transpose 5
+	call mel0_pt1a  ; 0, 2
+	transpose 0
+	call mel2_pt1b  ; 1, 3, 4
+	transpose 5
+	call mel0_pt1a  ; 0, 2
+	transpose 0
+	call mel2_pt1c_second  ; 1, 3, 4
+	ret
+
+mel2_pt1b:
+	"a#16r16 a# v121^v127 >[2 c v121^v127]< r"
+	ret
+
+mel2_pt1c_first:
+	call mel2_pt1c_sub
+	"gf"
+	ret
+
+mel2_pt1c_second:
+	call mel2_pt1c_sub
+	"v121^rv127"
+	ret
+
+mel2_pt1c_sub:
+	"a#16r16 a# v121^v127 a v121^v127 a"
+	ret
+
+mel2_pt1c_alt:
+	"a#16r16 a# v121^v127 [2 g v121^v127] r"
+	ret
+
+mel2_pt4b:
+	"> a#16r16 a# v121^v127 [2 g v121^v127] r <"
+	ret
+
+mel2_pt4c:
+	">d16 v121^16 v127 d v121^16 r16 v127 d v121 ^ v127 [3 g16 v121 ^16 v127]"
+	ret
+
+; ------------------------------------------------------------------------------
+;
+; Melody 3 (org channel 5)
+;
+; ------------------------------------------------------------------------------
+trk_mel3:
+	inst 3
+	length 8
+	oct 4
+
+	; Introduction 0-3, 0-4
+	"[3 r1]"
+	call trk_mel3_intro_stereo_effect_sub
+	"[4 r1]"
+	; Transition A 5-6
+	"r1 grgrgrga"
+	; Melody A 7-14
+	call trk_mel3_pt1_base
+	"[2 g v121 ^ v127] gf v121 ^ v127 g"
+	"v121 ^ v127 rr4r2"
+	call trk_mel3_pt1_base
+	"[2 g v121 ^ v127] ga# v121 ^ v127 g"
+	"v121 ^ v127 r r4r2"
+	; Transition B 23-24
+	"r1"
+	"[2 g v121 ^ v127] ggf#f"
+	; Melody B 25-40
+	"[3 r1]"
+	"[2 g v121 ^ v127] ggf#f"
+	"[3 r1]"
+	"r >> p01 c < b a# p11 g p10 f# f e p11<"
+	"p10 a# r p11 ag> p01 c r p11 <a#a"
+	"p01 g r p11 ag p10 a# r p11 >cd<"
+	"r1r1"
+	"p10 a# r p11 ag> p01 c r p11 <a#a"
+	"p01 g r p11 ag p10 a# r p11 >cd<"
+	"g v121 ^ v127 r4 r2"
+	"r1"
+	jump trk_mel3
+
+trk_mel3_intro_stereo_effect_sub:
+	"g >g16 v121 ^16 v127 [3 p01 g16 v121 ^16 v127 p10 g16 v121 ^16 v127] < p11"
+	ret
+
+trk_mel3_pt1_base:
+	"[2 b v121 ^ v127] >cd v121 ^ v127 < b"
+	"v121 ^ v127 bag r gfe"
+	"> d v121 ^ v127 edf v121 ^ v127 ed <"
+	call trk_mel3_intro_stereo_effect_sub
+	"rb v121 ^ v127 b>cd v121 ^ v127 d v121 ^ v127 dc<b r >>dc<b<"
 	ret
 
 ; ------------------------------------------------------------------------------
@@ -79,7 +368,6 @@ mel0_pt1b:
 trk_bass:
 	inst 0
 	length 8
-trk_bass_top:
 	oct 2
 	; Introduction 0-3, 0-4
 	loopset 2
@@ -89,7 +377,7 @@ trk_bass_top:
 	call bass_pt1c
 	loopend
 
-	; Transition A (5-6)
+	; Transition A 5-6
 	call bass_pt1d
 
 	; Melody A
@@ -108,7 +396,7 @@ trk_bass_top:
 	call bass_pt1c
 	loopend
 
-	; Transition B (23-24))
+	; Transition B 23-24
 	call bass_pt1d
 	
 	; Melody B
@@ -116,7 +404,7 @@ trk_bass_top:
 	call bass_pt4a
 	loopend
 
-	jump trk_bass_top
+	jump trk_bass
 
 bass_pt1a:
 	"@0"
@@ -146,7 +434,6 @@ bass_pt1d:
 	"@0cc<ba"
 	ret
 
-; This part 
 bass_pt4a:
 	"@1"
 	"g v121 ^ v127 >d< g>g v121 ^ v127 fe<"
@@ -157,3 +444,77 @@ bass_pt4a:
 	">"  ; TODO: This is meant to have a harmony with G-2 as well.
 	"[2 v127 d16 v121 ^16] ^ v127 d v121 ^ v127 d4 v121 ^ v127 <"
 	ret
+
+; ------------------------------------------------------------------------------
+;
+; Drums PCM (org channels 7-9)
+;
+; ------------------------------------------------------------------------------
+trk_drum_pcm:
+	pcm 1
+	length 4
+	
+	; Introduction 0-3, 0-4
+	call trk_drum_pcm_pt1a
+	call trk_drum_pcm_pt1b
+	call trk_drum_pcm_pt1a
+	call trk_drum_pcm_pt1c
+	; Transition A 5-6
+	"x5^ x4^8 x5^16x5^16 ^8 x4^8 x5^"
+	"x5^4 ^7 x5^ x4^8 x5^8 x5^8"
+	; Melody A
+	loopset 4
+	call trk_drum_pcm_pt1a
+	call trk_drum_pcm_pt1c
+	loopend
+	; Transition B 23-24
+	"x5^ x4^ r8 x4^8 x5^"
+	"x5 ^8 x5^ x4^8 x5^16 x5^16 x5^8"
+	; Melody B
+	jump trk_drum_pcm
+
+trk_drum_pcm_pt1a:
+	"x4^ x5^ x4^8 x4^8 x5^"
+	"x4^ x5^8 x4^ x4^8 x5^"
+	ret
+
+trk_drum_pcm_pt1b:
+	"x4^ x5^ x4^8 x4^8 x5^"
+	"r8 x4^8 x5^8 x4^ x4^8 x5^8 x5^8"
+	ret
+
+trk_drum_pcm_pt1c:
+	"x4^ x5^ x4^8 x4^8 x5^"
+	"r8 x4^8 x5^8 x4^ x4^8 x5^"
+	ret	
+
+; ------------------------------------------------------------------------------
+;
+; Drums PSG (org channels 9-10)
+;
+; ------------------------------------------------------------------------------
+trk_drum_psg:
+	inst 4
+	oct 7
+	noise 7
+	length 4
+	vol 0x70
+	
+	; Introduction 0-3, 0-4
+	"[32 b]"
+	; Transition A 5-6
+	call trk_drum_psg_transition_sub
+	; Melody A
+	"[2 @4 b @5 [31 b]]"
+	; Transition B 23-24
+	call trk_drum_psg_transition_sub
+	; Melody B
+	"[2 brr2 [3 r1]]"
+	"[32 b]"
+	jump trk_drum_psg
+
+trk_drum_psg_transition_sub:
+	"@4 b2 ^8 b8 ^"
+	"^b^b"
+	ret
+	
